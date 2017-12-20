@@ -14,19 +14,26 @@ class YelpController < ApplicationController
 
   DEFAULT_BUSINESS_ID = "yelp-san-francisco"
   DEFAULT_TERM = "dinner"
-  DEFAULT_LOCATION = "San Francisco, CA"
+  DEFAULT_LOCATION = "Arlington, VA"
   SEARCH_LIMIT = 5
 
   def search
+    Rails.logger.info 'search - params = ' + params.inspect
+
+    term = params["term"]
+    Rails.logger.info 'search - term = ' + term.inspect
+
     url = "#{API_HOST}#{SEARCH_PATH}"
 
     params = {
-      term: DEFAULT_TERM,
+      term: term,
       location: DEFAULT_LOCATION,
       limit: SEARCH_LIMIT
     }
 
     response = HTTP.auth("Bearer #{API_KEY}").get(url, params: params)
+    Rails.logger.info 'response - ' + response.parse.inspect
+
     render json: { response: response.parse }
   end
 
