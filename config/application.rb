@@ -31,5 +31,18 @@ module FoodFindersApi
     config.api_only = true
 
     # config.middleware.use ActionDispatch::Request
+
+    config.middleware.insert_before 0, Rack::Cors do
+      allow do
+        # origins 'localhost:3000'
+        origins 'localhost:3000'
+
+        resource '*',
+          headers: :any,
+          methods: %i(get post put patch delete options head),
+          credentials: true
+      end
+    end
+
   end
 end
