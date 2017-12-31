@@ -3,8 +3,10 @@ class BestAwardsController < ApplicationController
 
   # GET /best_awards
   def index
+    Rails.logger.info 'GET /best_awards - params = ' + params.inspect
     @best_awards = BestAward.all
 
+    Rails.logger.info '@best_awards = ' + @best_awards.inspect
     render json: @best_awards
   end
 

@@ -148,7 +148,8 @@ development:
 test:
   clients:
     default:
-      database: food_finders_api_test
+      # database: food_finders_api_test
+      database: food_finders_api_development
       hosts:
         - localhost:27017
       options:
