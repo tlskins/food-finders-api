@@ -34,7 +34,7 @@ class YelpController < ApplicationController
     response = HTTP.auth("Bearer #{API_KEY}").get(url, params: params)
     Rails.logger.info 'response - ' + response.parse.inspect
 
-    render json: { response: response.parse }
+    render json: response.parse
   end
 
 end
