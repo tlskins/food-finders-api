@@ -19,10 +19,15 @@ class Vote
 
   def entity_id=(params)
     super(params)
-    # write entity_name on assignment
     update_attribute(:entity_name, entity.name) if entity.present?
-    # update entity vote totals
     entity.calculate_vote_totals
+  end
+
+  def entity_business=(business_hash)
+    target_entity = Entity.where("business.id" => business_hash[:id]).first
+    target_entity.business = business_hash if target_entity.present?
+    target_entity ||= Entity.create(business: business_hash)
+    self.entity = target_entity
   end
 
 end
