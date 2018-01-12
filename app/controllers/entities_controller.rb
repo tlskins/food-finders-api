@@ -5,6 +5,10 @@ class EntitiesController < ApplicationController
   def index
     @entities = Entity.all
 
+    if params[:business_ids].present?
+      @entities = @entities.where("business.id": { '$in': params[:business_ids].split(",") } ) if params[:business_ids].present?
+    end
+
     render json: @entities
   end
 
@@ -15,11 +19,6 @@ class EntitiesController < ApplicationController
 
   # POST /entities
   def create
-    # Rails.logger.info "POST /entities params = " + entity_params.inspect
-    Rails.logger.info "params = " + params.inspect
-
-    # TODO - change to update or create based off business id
-
     @entity = Entity.new(entity_params)
 
     if @entity.save

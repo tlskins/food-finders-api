@@ -18,13 +18,8 @@ class YelpController < ApplicationController
   SEARCH_LIMIT = 5
 
   def search
-    Rails.logger.info 'search - yelp_search_params = ' + yelp_search_params.inspect
-
-    term = yelp_search_params["term"]
-    Rails.logger.info 'search - term = ' + term.inspect
-
+    term = params["term"]
     url = "#{API_HOST}#{SEARCH_PATH}"
-
     params = {
       term: term,
       location: DEFAULT_LOCATION,
@@ -32,15 +27,6 @@ class YelpController < ApplicationController
     }
 
     response = HTTP.auth("Bearer #{API_KEY}").get(url, params: params)
-    Rails.logger.info 'response - ' + response.parse.inspect
-
     render json: response.parse
   end
-
-  private
-
-    def yelp_search_params
-      params.require(:term).permit()
-    end
-
 end
