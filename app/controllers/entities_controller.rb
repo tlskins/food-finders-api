@@ -19,7 +19,7 @@ class EntitiesController < ApplicationController
     Rails.logger.info "params = " + params.inspect
 
     # TODO - change to update or create based off business id
-    
+
     @entity = Entity.new(entity_params)
 
     if @entity.save
