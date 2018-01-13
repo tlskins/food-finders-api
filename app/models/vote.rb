@@ -14,7 +14,12 @@ class Vote
 
   def food_id=(params)
     super(params)
-    update_attribute(:food_name, food.name) if food.present?
+    update_food_name
+  end
+
+  def food=(params)
+    super(params)
+    update_food_name
   end
 
   def entity_id=(params)
@@ -29,5 +34,11 @@ class Vote
     target_entity ||= Entity.create(business: business_hash)
     self.entity = target_entity
   end
+
+  protected
+
+    def update_food_name
+      update_attribute(:food_name, food.name) if food.present?
+    end
 
 end

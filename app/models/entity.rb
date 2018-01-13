@@ -2,12 +2,21 @@ class Entity
   include Mongoid::Document
   include Mongoid::Timestamps
 
+  field :business_id, type: String
   field :business, type: Hash
   field :vote_totals, type: Array
 
-  # TODO - create business id unique index
-
   has_many :votes
+
+  # Fields that are required in order to have a valid Food.
+  validates :business_id, presence: true, uniqueness: true
+
+  index({ business_id: 1 }, { background: true, unique: true })
+
+  def business=(params)
+    super(params)
+    update_attribute(:business_id, business[:id]) if business_id.nil? && business.present?
+  end
 
   def name
     business[:name] if business.present?
