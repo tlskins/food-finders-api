@@ -17,6 +17,15 @@ class Vote
   # Fields that are required in order to have a valid Food.
   validates :food, :entity, :hashtag, :user, presence: true
 
+  # For testing purposes
+  def self.list_all_pretty
+    Vote.all.map { |v| puts v.to_s }
+  end
+
+  def to_s
+    [self.entity_name, self.hashtag_name, self.food_name].join(" - ")
+  end
+
   def food_id=(params)
     super(params)
     update_relation_name('food')
@@ -58,6 +67,10 @@ class Vote
       if entity.present?
         puts 'calling entity calculate'
         entity.calculate_vote_totals
+      end
+      if hashtag.present?
+        puts 'calling hashtag calculate'
+        hashtag.calculate_vote_totals
       end
     end
 end

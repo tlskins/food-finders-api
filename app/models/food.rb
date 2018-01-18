@@ -13,10 +13,13 @@ class Food
   index({ name: 1 }, { background: true, unique: true })
 
   def calculate_vote_totals
-    # TODO - need to find a way to perform this aggregation without null _id so no array select necessary
     vote_totals = votes.collection.aggregate( [
-      { "$group" => { "_id" => "$entity_name", "count" => { "$sum" => 1 } } }
-    ]).entries.select { |entry| entry["_id"].present? }
+      { "$group": { "_id": { entity_name: '$entity_name', hashtag_name: '$hashtag_name' },
+                    "count": { "$sum" => 1 }
+                  }
+      }
+    ]).entries
+
     update_attribute(:vote_totals, vote_totals)
   end
 end

@@ -22,20 +22,23 @@ class Entity
   end
 
   def calculate_vote_totals
-    # TODO - need to find a way to perform this aggregation without null _id so no array select necessary
     vote_totals = votes.collection.aggregate( [
-      { "$group" => { "_id" => "$food_name", "count" => { "$sum" => 1 } } }
-    ]).entries.select { |entry| entry["_id"].present? }
+      { "$group": { "_id": { food_name: '$food_name', hashtag_name: '$hashtag_name' },
+                    "count": { "$sum" => 1 }
+                  }
+      }
+    ]).entries
+
     update_attribute(:vote_totals, vote_totals)
   end
-
+  
   protected
 
     def update_business_data
       if business.present?
         self.name = business[:name]
         self.business_id = business[:id]
-      else 
+      else
         # If removing a business relation only delete the business_id, name should stay the same
         self.business_id = ''
       end
