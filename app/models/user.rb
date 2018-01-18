@@ -7,6 +7,8 @@ class User
 
   has_many :votes
 
+  # TODO - what entities are my current best awards
+
   def name
     first_name + ' ' + last_name
   end

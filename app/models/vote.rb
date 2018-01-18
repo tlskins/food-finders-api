@@ -9,6 +9,9 @@ class Vote
   belongs_to :entity, index: true
   belongs_to :user, index: true
 
+  after_save :recalculate_vote_totals
+  after_destroy :recalculate_vote_totals
+
   # Fields that are required in order to have a valid Food.
   validates :food, :entity, :user, presence: true
 
@@ -17,28 +20,45 @@ class Vote
     update_food_name
   end
 
-  def food=(params)
-    super(params)
-    update_food_name
-  end
-
   def entity_id=(params)
     super(params)
-    update_attribute(:entity_name, entity.name) if entity.present?
-    entity.calculate_vote_totals
+    update_entity_name
   end
 
-  def entity_business=(business_hash)
-    target_entity = Entity.where("business.id" => business_hash[:id]).first
-    target_entity.business = business_hash if target_entity.present?
-    target_entity ||= Entity.create(business: business_hash)
+  def entity_business=(params)
+    target_entity = Entity.find_by(business_id: params[:id])
+    target_entity.update_attributes(business: params) if target_entity.present?
+    target_entity ||= Entity.create(business: params)
     self.entity = target_entity
   end
 
   protected
 
     def update_food_name
-      update_attribute(:food_name, food.name) if food.present?
+      if food.present?
+        self.food_name = food.name
+      else
+        self.food_name = ''
+      end
     end
 
+    def update_entity_name
+      if entity.present?
+        self.entity_name = entity.name
+      else
+        self.entity_name = '' 
+      end
+    end
+
+    def recalculate_vote_totals
+      puts 'self = ' + self.inspect
+      if food.present?
+        puts 'calling food calculate'
+        food.calculate_vote_totals
+      end
+      if entity.present?
+        puts 'calling entity calculate'
+        entity.calculate_vote_totals
+      end
+    end
 end
