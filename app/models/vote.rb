@@ -4,25 +4,32 @@ class Vote
 
   field :food_name, type: String
   field :entity_name, type: String
+  field :hashtag_name, type: String
 
   belongs_to :food, index: true
   belongs_to :entity, index: true
+  belongs_to :hashtag, index: true
   belongs_to :user, index: true
 
   after_save :recalculate_vote_totals
   after_destroy :recalculate_vote_totals
 
   # Fields that are required in order to have a valid Food.
-  validates :food, :entity, :user, presence: true
+  validates :food, :entity, :hashtag, :user, presence: true
 
   def food_id=(params)
     super(params)
-    update_food_name
+    update_relation_name('food')
   end
 
   def entity_id=(params)
     super(params)
-    update_entity_name
+    update_relation_name('entity')
+  end
+
+  def hashtag_id=(params)
+    super(params)
+    update_relation_name('hashtag')
   end
 
   def entity_business=(params)
@@ -34,19 +41,11 @@ class Vote
 
   protected
 
-    def update_food_name
-      if food.present?
-        self.food_name = food.name
+    def update_relation_name(relation)
+      if self.send(relation).present?
+        self.send(relation + '_name=', self.send(relation).name)
       else
-        self.food_name = ''
-      end
-    end
-
-    def update_entity_name
-      if entity.present?
-        self.entity_name = entity.name
-      else
-        self.entity_name = '' 
+        self.send(relation + '_name=', '')
       end
     end
 

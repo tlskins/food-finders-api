@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
 
+  resources :hashtags
   resources :votes
   resources :users
   resources :entities

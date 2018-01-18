@@ -1,7 +1,5 @@
-class Food
+class Hashtag
   include Mongoid::Document
-  include Mongoid::Timestamps::Created
-
   field :name, type: String
   field :vote_totals, type: Array
 
