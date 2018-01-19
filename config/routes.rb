@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
 
+  resources :tags
+  resources :social_entries
   resources :hashtags
   resources :votes
   resources :users

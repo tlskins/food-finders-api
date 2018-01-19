@@ -10,8 +10,9 @@ class Vote
   belongs_to :entity, index: true
   belongs_to :hashtag, index: true
   belongs_to :user, index: true
+  belongs_to :social_entry, index: true
 
-  after_save :recalculate_vote_totals
+  after_create :recalculate_vote_totals
   after_destroy :recalculate_vote_totals
 
   # Fields that are required in order to have a valid Food.
