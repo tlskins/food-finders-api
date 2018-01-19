@@ -15,7 +15,6 @@ class Vote
   after_create :recalculate_vote_totals
   after_destroy :recalculate_vote_totals
 
-  # Fields that are required in order to have a valid Food.
   validates :food, :entity, :hashtag, :user, presence: true
 
   # For testing purposes

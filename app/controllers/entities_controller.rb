@@ -53,7 +53,7 @@ class EntitiesController < ApplicationController
     def entity_params
       load_params = params.require(:entity).permit()
       # Dont want to whitelist yelp business hash as that may change in the future
-      load_params[:business] = params[:entity][:business]
+      load_params[:yelp_business] = params[:entity][:yelp_business]
       load_params.permit!
     end
 end
