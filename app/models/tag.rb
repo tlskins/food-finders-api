@@ -20,19 +20,14 @@ class Tag
     presence: true,
     length: { minimum: 3, maximum: 20 },
     uniqueness: { scope: :symbol, message: "Tag already exists" }
+    # TODO - Fix valid tag format regex
     # , format: { with: /[ '@#^*()`]/, message: "Invalid Tag handle format" }
   validates :symbol,
     presence: true,
-    inclusion: { in: Tag.reserved_symbols,
-    message: "%{value} is not a valid taggable symbol" }
+    inclusion: { in: Tag.reserved_symbols, message: "%{value} is not a valid taggable symbol" }
 
   index({ symbol: 1, name: 1 }, { background: true })
   index({ symbol: 1, handle: 1 }, { unique: true, background: true })
-
-  def taggable_type=(params)
-    super(params)
-    write_taggable_data
-  end
 
   scope :find_by_handle, ->(handle){ where(symbol: handle[0], handle: handle[1..-1]) }
 
@@ -40,6 +35,22 @@ class Tag
     or_array = handles.map { |h| { symbol: h[0], handle: h[1..-1] } }
     where("$or": or_array )
   }
+
+  def taggable_type=(params)
+    super(params)
+    write_taggable_data
+  end
+
+  def embeddable_attributes
+    embeddable_attrs = self.attributes
+    # Transpose id to tag_id for belongs to tag association
+    embeddable_attrs["tag_id"] = embeddable_attrs["_id"]
+    whitelisted_attributes = ["handle", "name", "symbol", "tag_id"]
+    # Delete all non whitelisted attributes
+    embeddable_attrs.each do |key, val|
+      embeddable_attrs.delete(key) if whitelisted_attributes.exclude?(key)
+    end
+  end
 
   protected
 
