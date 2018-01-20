@@ -10,6 +10,8 @@ class User
   has_many :votes
   has_one :tag, as: :taggable
 
+  embeds_one :draft_social_entry, as: :embeddable_social_entry, class_name: 'EmbeddedSocialEntry'
+
   # TODO - username validitions on special chars, spaces
   validates :user_name, presence: true, uniqueness: true
   validates :first_name, presence: true

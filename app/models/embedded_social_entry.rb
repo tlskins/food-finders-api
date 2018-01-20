@@ -1,17 +1,13 @@
-class SocialEntry
+class EmbeddedSocialEntry
   include Mongoid::Document
   include Mongoid::Timestamps
 
   field :text, type: String
 
-  belongs_to :user
-  has_and_belongs_to_many :tags
-  # TODO - build vote dynamically (not builT in embedded document)
-  has_one :vote
-  recursively_embeds_many
+  has_and_belongs_to_many :tags, inverse_of: nil
+  embedded_in :embeddable_social_entry, polymorphic: true
 
-  validates :text, presence: true, length: { minimum: 3, maximum: 160 }
-  validates :user, presence: true
+  validates :text, length: { maximum: 160 }
 
   def parse_text
     if text.present?

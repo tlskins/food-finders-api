@@ -11,6 +11,8 @@ class Entity
   has_many :votes
   has_one :tag, as: :taggable
 
+  embeds_one :draft_social_entry, as: :embeddable_social_entry
+
   validates :yelp_business_id, uniqueness: true
   validates :name, presence: true, uniqueness: true, length: { minimum: 3, maximum: 20 }
 
