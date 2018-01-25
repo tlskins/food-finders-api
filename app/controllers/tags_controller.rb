@@ -5,6 +5,13 @@ class TagsController < ApplicationController
   def index
     @tags = Tag.all
 
+    @tags = @tags.where(symbol: params[:symbol]) if params[:symbol].present?
+
+    if params[:text].present?
+      textRegex = Regexp.new("^#{ params[:text] }", Regexp::IGNORECASE)
+      @tags = @tags.where("$or": [ {name: textRegex}, {handle: textRegex} ])
+    end
+
     render json: @tags
   end
 

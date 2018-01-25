@@ -46,6 +46,6 @@ class VotesController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def vote_params
-      params.fetch(:vote, {:entity_business, :food_id, :user_id})
+      params.fetch(:vote, {})
     end
 end
