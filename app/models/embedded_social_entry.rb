@@ -21,6 +21,7 @@ class EmbeddedSocialEntry
       handles = text.split(" ").select { |s| Tag.reserved_symbols.include?(s[0]) }
       if handles.present?
         # If tags are found create embedded tag docs for them
+        self.tags.delete_all
         Tag.find_by_handles(*handles).map { |t| self.tags.create(t.embeddable_attributes) }
       end
     end

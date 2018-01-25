@@ -26,6 +26,7 @@ class UsersController < ApplicationController
 
   # PATCH/PUT /users/1
   def update
+    Rails.logger.info "PATCH/PUT /users/1 - user_params = " + user_params.inspect
     if @user.update(user_params)
       render json: @user
     else
@@ -46,6 +47,6 @@ class UsersController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def user_params
-      params.require(:user).permit(:user_name, :first_name, :last_name, :draft_social_entry)
+      params.require(:user).permit( { draft_social_entry: :text } )
     end
 end

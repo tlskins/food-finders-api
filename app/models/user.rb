@@ -11,6 +11,7 @@ class User
   has_one :tag, as: :taggable
 
   embeds_one :draft_social_entry, as: :embeddable_social_entry, class_name: 'EmbeddedSocialEntry'
+  accepts_nested_attributes_for :draft_social_entry
 
   # TODO - username validitions on special chars, spaces
   validates :user_name, presence: true, uniqueness: true

@@ -33,6 +33,9 @@ module FoodFindersApi
 
     # config.middleware.use ActionDispatch::Request
 
+    config.logger = ActiveSupport::TaggedLogging.new(Logger.new(File.join(Rails.root, 'log', 'test.log')))
+
+
     config.middleware.insert_before 0, Rack::Cors do
       allow do
         # origins 'localhost:3000'
@@ -44,6 +47,6 @@ module FoodFindersApi
           credentials: true
       end
     end
-    
+
   end
 end
