@@ -26,7 +26,6 @@ class UsersController < ApplicationController
 
   # PATCH/PUT /users/1
   def update
-    Rails.logger.info "PATCH/PUT /users/1 - user_params = " + user_params.inspect
     if @user.update(user_params)
       render json: @user
     else

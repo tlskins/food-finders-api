@@ -8,7 +8,8 @@ class EmbeddedSocialEntry
   embeds_many :tags, as: :embeddable_tags, class_name: 'EmbeddedTag'
   embedded_in :embeddable_social_entry, polymorphic: true
 
-  validates :text, length: { maximum: 160 }
+  # TODO - Add back later / Include front end validation
+  # validates :text, length: { maximum: 160 }
 
   # Parse text whenever text is updated
   def text=(params)

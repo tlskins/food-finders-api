@@ -5,10 +5,19 @@ class TagsController < ApplicationController
   def index
     @tags = Tag.all
 
-    @tags = @tags.where(symbol: params[:symbol]) if params[:symbol].present?
+    if params[:symbol].present?
+      # TODO - Figure out # encoding
+      if params[:symbol] == "%23"
+        symbol = "#"
+      else
+        symbol = params[:symbol]
+      end
+
+      @tags = @tags.where(symbol: symbol)
+    end
 
     if params[:text].present?
-      textRegex = Regexp.new("^#{ params[:text] }", Regexp::IGNORECASE)
+      textRegex = Regexp.new("#{ params[:text] }", Regexp::IGNORECASE)
       @tags = @tags.where("$or": [ {name: textRegex}, {handle: textRegex} ])
     end
 
