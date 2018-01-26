@@ -1,23 +1,18 @@
 class Entity
   include Mongoid::Document
   include Mongoid::Timestamps
+  include Taggable
 
-  field :name, type: String
   field :handle, type: String
   field :yelp_business, type: Hash
   field :yelp_business_id, type: String
   field :vote_totals, type: Array
 
   has_many :votes
-  has_one :tag, as: :taggable
-
-  embeds_one :draft_social_entry, as: :embeddable_social_entry
 
   validates :yelp_business_id, uniqueness: true
-  validates :name, presence: true, uniqueness: true, length: { minimum: 3, maximum: 20 }
 
   index({ yelp_business_id: 1 }, { background: true, unique: true })
-  index({ name: 1  }, { background: true, unique: true })
 
   # Used to set taggable symbol in tag
   def tagging_symbol
@@ -33,11 +28,6 @@ class Entity
     if yelp_business.present?
       return yelp_business[:id]
     end
-  end
-
-  # Used to set taggable symbol in tag
-  def tagging_name
-    name
   end
 
   def yelp_business=(params)
