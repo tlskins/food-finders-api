@@ -9,8 +9,12 @@ class TagsController < ApplicationController
 
   def find_by_text(tags, params)
     text_regex = Regexp.new(params[:text], Regexp::IGNORECASE)
-    tags.where(:$or =>
-      [{ name: text_regex }, { handle: text_regex }])
+    tags.where(
+      :$or => [
+        { name: text_regex },
+        { handle: text_regex }
+      ]
+    )
   end
 
   # GET /tags

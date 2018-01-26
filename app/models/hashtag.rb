@@ -10,13 +10,10 @@ class Hashtag
 
   def calculate_vote_totals
     vote_totals = votes.collection.aggregate(
-      [{ :$group => {
-        '_id' =>
-        {
-          entity_name: '$entity_name', food_name: '$food_name'
-        },
-        'count' => { :$sum => 1 }
-      } }]
+      [{ :$group =>
+          { '_id' =>
+            { entity_name: '$entity_name', food_name: '$food_name' },
+            'count' => { :$sum => 1 } } }]
     ).entries
     update_attribute(:vote_totals, vote_totals)
   end
