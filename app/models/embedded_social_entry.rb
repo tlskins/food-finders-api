@@ -1,3 +1,4 @@
+# Embedded Social Entry Model - meta data for social entry
 class EmbeddedSocialEntry
   include Mongoid::Document
   include Mongoid::Timestamps
@@ -8,7 +9,7 @@ class EmbeddedSocialEntry
   embeds_many :tags, as: :embeddable_tags, class_name: 'EmbeddedTag'
   embedded_in :embeddable_social_entry, polymorphic: true
 
-  # TODO - Add back later / Include front end validation
+  # TODO : Add back later / Include front end validation
   # validates :text, length: { maximum: 160 }
 
   # Parse text whenever text is updated
@@ -17,14 +18,23 @@ class EmbeddedSocialEntry
     parse_text
   end
 
+  def identify_handles
+    return if text.empty?
+    # Find all words beginning with handle symbols
+    text.split(' ').select { |s| Tag.reserved_symbols.include?(s[0]) }
+  end
+
   def parse_text
-    if text.present?
-      handles = text.split(" ").select { |s| Tag.reserved_symbols.include?(s[0]) }
-      if handles.present?
-        # If tags are found create embedded tag docs for them
-        self.tags.delete_all
-        Tag.find_by_handles(*handles).map { |t| self.tags.create(t.embeddable_attributes) }
-      end
+    return if text.empty?
+
+    handles = identify_handles
+    return if handles.empty?
+
+    # Remove existing tags
+    tags.delete_all
+    # Create embedded tag docs for them
+    Tag.find_by_handles(*handles).map do |t|
+      tags.create(t.embeddable_attributes)
     end
   end
 end

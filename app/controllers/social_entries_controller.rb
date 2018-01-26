@@ -1,5 +1,6 @@
+# Social Entry controller
 class SocialEntriesController < ApplicationController
-  before_action :set_social_entry, only: [:show, :update, :destroy]
+  before_action :set_social_entry, only: %i[show update destroy]
 
   # GET /social_entries
   def index
@@ -39,13 +40,14 @@ class SocialEntriesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_social_entry
-      @social_entry = SocialEntry.find(params[:id])
-    end
 
-    # Only allow a trusted parameter "white list" through.
-    def social_entry_params
-      params.require(:social_entry).permit(:text, :user_id, :vote, :tags)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_social_entry
+    @social_entry = SocialEntry.find(params[:id])
+  end
+
+  # Only allow a trusted parameter "white list" through.
+  def social_entry_params
+    params.require(:social_entry).permit(:text, :user_id, :vote, :tags)
+  end
 end

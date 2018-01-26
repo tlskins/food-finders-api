@@ -1,3 +1,4 @@
+# Tag Model - tag meta data
 class EmbeddedTag
   include Mongoid::Document
   include Mongoid::Timestamps
@@ -10,7 +11,6 @@ class EmbeddedTag
   embedded_in :embeddable_tag, polymorphic: true
 
   def to_s
-    self.symbol + self.handle
+    symbol + handle
   end
-
 end

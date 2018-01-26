@@ -1,3 +1,4 @@
+# Provides all the functionality so that an object can be taggable
 module Taggable
   extend ActiveSupport::Concern
 
@@ -6,13 +7,18 @@ module Taggable
 
     has_one :tag, as: :taggable
 
-    validates :name, presence: true, uniqueness: true, length: { minimum: 3, maximum: 20 }
+    validates(
+      :name,
+      presence: true,
+      uniqueness: true,
+      length: { minimum: 3, maximum: 20 }
+    )
 
-    index({ name: 1 }, { background: true, unique: true, drop_dups: true })
+    index({ name: 1 }, background: true, unique: true, drop_dups: true)
   end
 
   def tagging_symbol
-    "#"
+    '#'
   end
 
   # Used to set a unique public tag identifier
@@ -27,5 +33,4 @@ module Taggable
   def tagging_name
     name
   end
-
 end

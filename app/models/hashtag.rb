@@ -1,3 +1,4 @@
+# Hashtag Model - an arbitrary subject topic
 class Hashtag
   include Mongoid::Document
   include Mongoid::Timestamps::Created
@@ -8,12 +9,15 @@ class Hashtag
   has_many :votes
 
   def calculate_vote_totals
-    vote_totals = votes.collection.aggregate( [
-      { "$group": { "_id": { entity_name: '$entity_name', food_name: '$food_name' },
-                    "count": { "$sum" => 1 }
-                  }
-      }
-    ]).entries
+    vote_totals = votes.collection.aggregate(
+      [{ :$group => {
+        '_id' =>
+        {
+          entity_name: '$entity_name', food_name: '$food_name'
+        },
+        'count' => { :$sum => 1 }
+      } }]
+    ).entries
     update_attribute(:vote_totals, vote_totals)
   end
 end

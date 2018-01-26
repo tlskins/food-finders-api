@@ -1,12 +1,14 @@
+# Entities controller
 class EntitiesController < ApplicationController
-  before_action :set_entity, only: [:show, :update, :destroy]
+  before_action :set_entity, only: %i[show update destroy]
 
   # GET /entities
   def index
     @entities = Entity.all
 
     if params[:business_ids].present?
-      @entities = @entities.where("business.id": { '$in': params[:business_ids].split(",") } ) if params[:business_ids].present?
+      @entities = @entities.where('business.id' =>
+        { :$in => params[:business_ids].split(',') })
     end
 
     render json: @entities
@@ -44,16 +46,16 @@ class EntitiesController < ApplicationController
 
   private
 
-    # Use callbacks to share common setup or constraints between actions.
-    def set_entity
-      @entity = Entity.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_entity
+    @entity = Entity.find(params[:id])
+  end
 
-    # Only allow a trusted parameter "white list" through.
-    def entity_params
-      load_params = params.require(:entity).permit()
-      # Dont want to whitelist yelp business hash as that may change in the future
-      load_params[:yelp_business] = params[:entity][:yelp_business]
-      load_params.permit!
-    end
+  # Only allow a trusted parameter "white list" through.
+  def entity_params
+    load_params = params.require(:entity).permit
+    # Dont want to whitelist yelp business hash as that may change in the future
+    load_params[:yelp_business] = params[:entity][:yelp_business]
+    load_params.permit!
+  end
 end

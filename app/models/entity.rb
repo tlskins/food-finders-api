@@ -1,3 +1,4 @@
+# Entity Model - restaurants, chefs, derive from yelp fusion
 class Entity
   include Mongoid::Document
   include Mongoid::Timestamps
@@ -12,11 +13,11 @@ class Entity
 
   validates :yelp_business_id, uniqueness: true
 
-  index({ yelp_business_id: 1 }, { background: true, unique: true })
+  index({ yelp_business_id: 1 }, background: true, unique: true)
 
   # Used to set taggable symbol in tag
   def tagging_symbol
-    "@"
+    '@'
   end
 
   # Used to set a unique public tag identifier
@@ -25,9 +26,7 @@ class Entity
     return handle if handle.present?
 
     # If a yelp business is set use its id as the tagging handle
-    if yelp_business.present?
-      return yelp_business[:id]
-    end
+    return yelp_business[:id] if yelp_business.present?
   end
 
   def yelp_business=(params)
@@ -36,24 +35,28 @@ class Entity
   end
 
   def calculate_vote_totals
-    vote_totals = votes.collection.aggregate( [
-      { "$group": { "_id": { food_name: '$food_name', hashtag_name: '$hashtag_name' },
-                    "count": { "$sum" => 1 }
-                  }
-      }
-    ]).entries
+    vote_totals = votes.collection.aggregate(
+      [{ :$group => {
+        '_id' =>
+        {
+          food_name: '$food_name', hashtag_name: '$hashtag_name'
+        },
+        'count' => { :$sum => 1 }
+      } }]
+    ).entries
     update_attribute(:vote_totals, vote_totals)
   end
 
   protected
 
-    def update_yelp_business_data
-      if yelp_business.present?
-        self.name = yelp_business[:name]
-        self.yelp_business_id = yelp_business[:id]
-      else
-        # If removing a business relation only delete the business_id, name should stay the same
-        self.yelp_business_id = ''
-      end
+  def update_yelp_business_data
+    if yelp_business.present?
+      self.name = yelp_business[:name]
+      self.yelp_business_id = yelp_business[:id]
+    else
+      # If removing a business relation only delete the business_id,
+      # name should stay the same
+      self.yelp_business_id = ''
     end
+  end
 end

@@ -1,3 +1,4 @@
+# User Model - user persistence
 class User
   include Mongoid::Document
   include Mongoid::Timestamps
@@ -9,15 +10,19 @@ class User
 
   has_many :votes
 
-  embeds_one :draft_social_entry, as: :embeddable_social_entry, class_name: 'EmbeddedSocialEntry', autobuild: true
+  embeds_one(
+    :draft_social_entry,
+    as: :embeddable_social_entry,
+    class_name: 'EmbeddedSocialEntry',
+    autobuild: true
+  )
 
-  # TODO - name validitions on special chars, spaces
+  # TODO : name validitions on special chars, spaces
   validates :first_name, presence: true
   validates :last_name, presence: true
 
   # Used to set taggable symbol in tag
   def tagging_symbol
-    "@"
+    '@'
   end
-
 end

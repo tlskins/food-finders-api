@@ -1,5 +1,6 @@
+# Hashtag controller
 class HashtagsController < ApplicationController
-  before_action :set_hashtag, only: [:show, :update, :destroy]
+  before_action :set_hashtag, only: %i[show update destroy]
 
   # GET /hashtags
   def index
@@ -39,13 +40,14 @@ class HashtagsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_hashtag
-      @hashtag = Hashtag.find(params[:id])
-    end
 
-    # Only allow a trusted parameter "white list" through.
-    def hashtag_params
-      params.require(:hashtag).permit(:name, :vote_totals)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_hashtag
+    @hashtag = Hashtag.find(params[:id])
+  end
+
+  # Only allow a trusted parameter "white list" through.
+  def hashtag_params
+    params.require(:hashtag).permit(:name, :vote_totals)
+  end
 end

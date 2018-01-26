@@ -1,25 +1,25 @@
+# Tag controller
 class TagsController < ApplicationController
-  before_action :set_tag, only: [:show, :update, :destroy]
+  before_action :set_tag, only: %i[show update destroy]
+
+  def find_by_symbol(tags, params)
+    symbol = params[:symbol] == '%23' ? '#' : params[:symbol]
+    tags.where(symbol: symbol)
+  end
+
+  def find_by_text(tags, params)
+    text_regex = Regexp.new(params[:text], Regexp::IGNORECASE)
+    tags.where(:$or =>
+      [{ name: text_regex }, { handle: text_regex }])
+  end
 
   # GET /tags
   def index
     @tags = Tag.all
 
-    if params[:symbol].present?
-      # TODO - Figure out # encoding
-      if params[:symbol] == "%23"
-        symbol = "#"
-      else
-        symbol = params[:symbol]
-      end
+    @tags = find_by_symbol(@tags, params) if params[:symbol].present?
 
-      @tags = @tags.where(symbol: symbol)
-    end
-
-    if params[:text].present?
-      textRegex = Regexp.new("#{ params[:text] }", Regexp::IGNORECASE)
-      @tags = @tags.where("$or": [ {name: textRegex}, {handle: textRegex} ])
-    end
+    @tags = find_by_text(@tags, params) if params[:text].present?
 
     render json: @tags
   end
@@ -55,13 +55,14 @@ class TagsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_tag
-      @tag = Tag.find(params[:id])
-    end
 
-    # Only allow a trusted parameter "white list" through.
-    def tag_params
-      params.require(:tag).permit(:taggable_symbol, :taggable_name)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_tag
+    @tag = Tag.find(params[:id])
+  end
+
+  # Only allow a trusted parameter "white list" through.
+  def tag_params
+    params.require(:tag).permit(:taggable_symbol, :taggable_name)
+  end
 end

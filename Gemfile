@@ -46,3 +46,5 @@ end
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem 'sidekiq', '5.0.5'
+
+gem 'rubocop', '0.52.1', require: false
