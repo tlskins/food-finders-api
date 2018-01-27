@@ -11,8 +11,6 @@ class SocialEntry
   embeds_many :tags, as: :embeddable_tags, class_name: 'EmbeddedTag'
   recursively_embeds_many
 
-  # TODO : build vote dynamically (not builT in embedded document)
-
   validates :text, presence: true, length: { minimum: 3, maximum: 160 }
   validates :user, presence: true
 
@@ -34,5 +32,23 @@ class SocialEntry
     Tag.find_by_handles(*handles).map do |t|
       tags.create(t.embeddable_attributes)
     end
+  end
+
+  ### Actionable Methods ###
+
+  def actor
+    user
+  end
+
+  def scope
+    'Followers'
+  end
+
+  def metadata
+    { author_type: user.class.name,
+      author_id: user.id,
+      data_type: 'text',
+      data: text,
+      created_at: created_at }
   end
 end

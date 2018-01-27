@@ -9,6 +9,7 @@ class User
   field :first_name, type: String
   field :last_name, type: String
 
+  has_many :actions, as: :actor
   has_many :votes
   has_one(
     :follower_tracker,

@@ -1,20 +1,20 @@
-# Provides all the functionality so that an action object can be created from it
+# Module for an object that can create a valid Action
 module Actionable
   extend ActiveSupport::Concern
 
   included do
-    has_one :action, as: :actable
+    has_one :action, as: :actionable
   end
 
   def actor
-    user if user.present?
+    raise 'Actionable actor not defined'
   end
 
   def scope
-    'Followers'
+    raise 'Actionable scope not defined'
   end
 
   def metadata
-    'Test'
+    raise 'Actionable metadata not defined'
   end
 end
