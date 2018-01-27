@@ -2,6 +2,7 @@
 class User
   include Mongoid::Document
   include Mongoid::Timestamps
+  include Mongoid::Attributes::Dynamic
   include Taggable
 
   field :handle, type: String
@@ -9,7 +10,18 @@ class User
   field :last_name, type: String
 
   has_many :votes
-
+  has_one(
+    :follower_tracker,
+    class_name: 'FollowTracker',
+    autobuild: true,
+    autosave: true
+  )
+  has_one(
+    :following_tracker,
+    class_name: 'FollowTracker',
+    autobuild: true,
+    autosave: true
+  )
   embeds_one(
     :draft_social_entry,
     as: :embeddable_social_entry,
@@ -20,6 +32,24 @@ class User
   # TODO : name validitions on special chars, spaces
   validates :first_name, presence: true
   validates :last_name, presence: true
+
+  def follow(target)
+    following_tracker.add_target(target)
+    target.followers_tracker.add_target(self)
+  end
+
+  def following?(target)
+    following_tracker.includes_target?(target)
+  end
+
+  def unfollow(target)
+    following_tracker.remove_target(target)
+    target.followers_tracker.remove_target(self)
+  end
+
+  def followed_by?(target)
+    followers_tracker.includes_target?(target)
+  end
 
   # Used to set taggable symbol in tag
   def tagging_symbol

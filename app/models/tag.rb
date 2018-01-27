@@ -31,21 +31,21 @@ class Tag
     presence: true,
     inclusion: {
       in: Tag.reserved_symbols,
-      message: "#{value} is not a valid taggable symbol"
+      message: 'Not a valid taggable symbol'
     }
   )
 
   index({ symbol: 1, name: 1 }, background: true)
   index({ symbol: 1, handle: 1 }, unique: true, background: true)
 
-  scope :find_by_handle, lambda(handle) do
+  scope :find_by_handle, lambda { |handle|
     where(symbol: handle[0], handle: handle[1..-1])
-  end
+  }
 
-  scope :find_by_handles, lambda(*handles) do
+  scope :find_by_handles, lambda { |*handles|
     or_array = handles.map { |h| { symbol: h[0], handle: h[1..-1] } }
     where(:$or => or_array)
-  end
+  }
 
   def taggable_type=(params)
     super(params)
