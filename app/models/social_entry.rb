@@ -2,15 +2,16 @@
 class SocialEntry
   include Mongoid::Document
   include Mongoid::Timestamps
+  include Actionable
 
   field :text, type: String
 
   belongs_to :user
   has_one :vote
-  # has_and_belongs_to_many :tags
   embeds_many :tags, as: :embeddable_tags, class_name: 'EmbeddedTag'
-  # TODO : build vote dynamically (not builT in embedded document)
   recursively_embeds_many
+
+  # TODO : build vote dynamically (not builT in embedded document)
 
   validates :text, presence: true, length: { minimum: 3, maximum: 160 }
   validates :user, presence: true

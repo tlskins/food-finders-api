@@ -22,6 +22,7 @@ class User
     autobuild: true,
     autosave: true
   )
+  has_many :social_entries
   embeds_one(
     :draft_social_entry,
     as: :embeddable_social_entry,
