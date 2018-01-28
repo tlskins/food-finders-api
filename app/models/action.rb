@@ -40,6 +40,7 @@ class Action
   )
 
   after_create :write_actionable_data
+  after_save :fan_out_action_job
 
   def actionable_type=(params)
     super(params)
@@ -56,6 +57,10 @@ class Action
   rescue StandardError => error
     logger.error 'Error on action fan out - error message: ' + error.message
     update_attributes(fan_out_status: 'error')
+  end
+
+  def fan_out_action_job
+    FanOutJob.perform_now self if fan_out_status == 'pending'
   end
 
   protected
