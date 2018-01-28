@@ -5,9 +5,14 @@ class FollowTracker
 
   field :target_ids, type: Array, default: []
   field :target_count, type: Integer, default: 0
+  # field :target_type, type: String
 
-  belongs_to :user, inverse_of: :followers_tracker
-  belongs_to :user, inverse_of: :following_tracker
+  belongs_to :followable, polymorphic: true
+
+  # validates(
+  #   :target_type,
+  #   inclusion: { in: %w[follower following] }
+  # )
 
   def includes_target?(target)
     target_ids.include?(target.id) if target.present?

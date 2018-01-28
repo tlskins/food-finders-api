@@ -41,7 +41,7 @@ class SocialEntry
   end
 
   def scope
-    'Followers'
+    'followers'
   end
 
   def metadata

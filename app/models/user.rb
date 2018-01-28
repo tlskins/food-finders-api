@@ -10,19 +10,23 @@ class User
   field :last_name, type: String
 
   has_many :actions, as: :actor
+  has_many :newsfeed_items
   has_many :votes
   has_one(
     :follower_tracker,
+    as: :followable,
     class_name: 'FollowTracker',
     autobuild: true,
     autosave: true
   )
   has_one(
     :following_tracker,
+    as: :followable,
     class_name: 'FollowTracker',
     autobuild: true,
     autosave: true
   )
+
   has_many :social_entries
   embeds_one(
     :draft_social_entry,
@@ -37,7 +41,7 @@ class User
 
   def follow(target)
     following_tracker.add_target(target)
-    target.followers_tracker.add_target(self)
+    target.follower_tracker.add_target(self)
   end
 
   def following?(target)
@@ -46,11 +50,11 @@ class User
 
   def unfollow(target)
     following_tracker.remove_target(target)
-    target.followers_tracker.remove_target(self)
+    target.follower_tracker.remove_target(self)
   end
 
   def followed_by?(target)
-    followers_tracker.includes_target?(target)
+    follower_tracker.includes_target?(target)
   end
 
   # Used to set taggable symbol in tag
