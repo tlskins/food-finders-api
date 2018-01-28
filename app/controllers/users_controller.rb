@@ -1,6 +1,6 @@
 # User Controller
 class UsersController < ApplicationController
-  before_action :set_user, only: %i[show update destroy]
+  before_action :set_user, only: %i[show update destroy newsfeed]
 
   # GET /users
   def index
@@ -37,6 +37,11 @@ class UsersController < ApplicationController
   # DELETE /users/1
   def destroy
     @user.destroy
+  end
+
+  # GET /users/1/newsfeed
+  def newsfeed
+    @user.newsfeed(params[:created_after])
   end
 
   private

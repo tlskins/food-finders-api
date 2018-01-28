@@ -39,8 +39,7 @@ class Action
     }
   )
 
-  after_create :write_actionable_data
-  after_save :fan_out_action_job
+  after_create :write_actionable_data, :write_to_actor_feed, :fan_out_action_job
 
   def actionable_type=(params)
     super(params)
@@ -61,6 +60,12 @@ class Action
 
   def fan_out_action_job
     FanOutJob.perform_now self if fan_out_status == 'pending'
+  end
+
+  def write_to_actor_feed
+    return unless actor.respond_to?('newsfeed_items')
+    # TODO : If newsfeed user association becomes polymorphic change this
+    newsfeed_items.create(user_id: actor.id, relevancy: conducted_at)
   end
 
   protected

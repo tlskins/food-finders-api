@@ -61,4 +61,21 @@ class User
   def tagging_symbol
     '@'
   end
+
+  def relevant_newsfeed_ids
+    newsfeed_items.limit(25).order_by(relevancy: :desc).map(&:action_id)
+  end
+
+  def newsfeed(created_after = nil)
+    if created_after.present?
+      Action.where(
+        :$and => [
+          { id: { :$in => relevant_newsfeed_ids } },
+          { :created_at.gt => created_after }
+        ]
+      )
+    else
+      Action.where(id: { :$in => relevant_newsfeed_ids })
+    end
+  end
 end

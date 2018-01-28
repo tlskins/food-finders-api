@@ -10,6 +10,4 @@ class NewsfeedItem
   belongs_to :user
   # Social meta data
   belongs_to :action
-
-  has_many :newsfeed_items
 end

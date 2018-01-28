@@ -12,7 +12,6 @@ module Actionable
   attr_accessor :dont_autobuild_on_create
 
   def autocreate_action
-    puts 'autocreate_action called'
     return if action.present? || @dont_autobuild_on_create
     create_action
   end
