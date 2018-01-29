@@ -25,7 +25,6 @@ class YelpController < ApplicationController
       location: DEFAULT_LOCATION,
       limit: SEARCH_LIMIT
     }
-
     response = HTTP.auth("Bearer #{API_KEY}").get(url, params: params)
     render json: response.parse
   end

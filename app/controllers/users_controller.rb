@@ -1,6 +1,9 @@
 # User Controller
 class UsersController < ApplicationController
-  before_action :set_user, only: %i[show update destroy newsfeed]
+  before_action(
+    :set_user,
+    only: %i[show update destroy newsfeed publish_draft_social_entry]
+  )
 
   # GET /users
   def index
@@ -37,6 +40,16 @@ class UsersController < ApplicationController
   # DELETE /users/1
   def destroy
     @user.destroy
+  end
+
+  # POST /users/1/publish_draft_social_entry
+  def publish_draft_social_entry
+    if @user.publish_draft_social_entry
+      @user.reload
+      render json: @user
+    else
+      render json: @user.errors, status: :unprocessable_entity
+    end
   end
 
   # GET /users/1/newsfeed

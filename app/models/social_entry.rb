@@ -3,36 +3,18 @@ class SocialEntry
   include Mongoid::Document
   include Mongoid::Timestamps
   include Actionable
+  include Parseable
 
   field :text, type: String
 
   belongs_to :user
   has_one :vote
-  embeds_many :tags, as: :embeddable_tags, class_name: 'EmbeddedTag'
   recursively_embeds_many
 
   validates :text, presence: true, length: { minimum: 3, maximum: 160 }
   validates :user, presence: true
 
-  def identify_handles
-    return if text.empty?
-    # Find all words beginning with handle symbols
-    text.split(' ').select { |s| Tag.reserved_symbols.include?(s[0]) }
-  end
-
-  def parse_text
-    return if text.empty?
-
-    handles = identify_handles
-    return if handles.empty?
-
-    # Remove existing tags
-    tags.delete_all
-    # Create embedded tag docs for them
-    Tag.find_by_handles(*handles).map do |t|
-      tags.create(t.embeddable_attributes)
-    end
-  end
+  after_create :parse_text
 
   ### Actionable Methods ###
 

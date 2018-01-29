@@ -46,6 +46,7 @@ class Action
     write_actionable_data
   end
 
+  # TODO : Fan out needs to work with updates and destroys not just creates
   def fan_out
     update_attributes(fan_out_status: 'running')
     follower_ids = actor.follower_tracker.target_ids

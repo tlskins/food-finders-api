@@ -62,6 +62,15 @@ class User
     '@'
   end
 
+  def publish_draft_social_entry
+    social_entries.create(text: draft_social_entry.text)
+    draft_social_entry.update_attributes(
+      text: '',
+      tags: [],
+      last_submit: Time.now
+    )
+  end
+
   def relevant_newsfeed_ids
     newsfeed_items.limit(25).order_by(relevancy: :desc).map(&:action_id)
   end

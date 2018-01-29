@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   resources :votes
   resources :users do
     get 'newsfeed', on: :member
+    post 'publish_draft_social_entry', on: :member
   end
   resources :entities
   resources :foods
