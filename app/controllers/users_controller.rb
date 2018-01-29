@@ -54,7 +54,12 @@ class UsersController < ApplicationController
 
   # GET /users/1/newsfeed
   def newsfeed
-    @user.newsfeed(params[:created_after])
+    newsfeed_items = @user.newsfeed(params[:created_after])
+    if newsfeed_items.present?
+      render json: newsfeed_items
+    else
+      render json: [], status: :unprocessable_entity
+    end
   end
 
   private
