@@ -58,7 +58,7 @@ class UsersController < ApplicationController
     if newsfeed_items.present?
       render json: newsfeed_items
     else
-      render json: [], status: :unprocessable_entity
+      render json: []
     end
   end
 

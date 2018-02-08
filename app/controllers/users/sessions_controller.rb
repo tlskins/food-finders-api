@@ -2,6 +2,7 @@
 require 'bcrypt'
 
 class Users::SessionsController < Devise::SessionsController
+  include ActionController::MimeResponds
   # before_action :configure_sign_in_params, only: [:create]
 
   # GET /resource/sign_in
@@ -49,14 +50,14 @@ class Users::SessionsController < Devise::SessionsController
     else
       render json: { error: "Invalid email or password." }, status: 401
     end
-
-    rescue => e
-      self.logger.error({ error: "Error signing in", exception: e }).to_json
   end
 
   # DELETE /resource/sign_out
   # def destroy
-  #   super
+  #   signed_out = (Devise.sign_out_all_scopes ? sign_out : sign_out(resource_name))
+  #   set_flash_message! :notice, :signed_out if signed_out
+  #   yield if block_given?
+  #   respond_to_on_destroy
   # end
 
   protected
