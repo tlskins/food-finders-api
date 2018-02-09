@@ -2,7 +2,14 @@
 class UsersController < ApplicationController
   before_action(
     :set_user,
-    only: %i[show update destroy newsfeed publish_draft_social_entry]
+    only: %i[
+      show
+      update
+      destroy
+      newsfeed
+      publish_draft_social_entry
+      match_relationships
+    ]
   )
 
   def find_by_text(users, text)
@@ -73,6 +80,11 @@ class UsersController < ApplicationController
     else
       render json: []
     end
+  end
+
+  # GET /users/1/match_relationships
+  def match_relationships
+    render json: @user.match_relationships(params[:user_ids].split(','))
   end
 
   private

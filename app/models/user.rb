@@ -47,16 +47,14 @@ class User
   has_many :actions, as: :actor
   has_many :newsfeed_items
   has_many :votes
-  has_one(
+  belongs_to(
     :follower_tracker,
-    as: :followable,
     class_name: 'FollowTracker',
     autobuild: true,
     autosave: true
   )
-  has_one(
+  belongs_to(
     :following_tracker,
-    as: :followable,
     class_name: 'FollowTracker',
     autobuild: true,
     autosave: true
@@ -118,15 +116,15 @@ class User
     newsfeed_items.limit(25).order_by(relevancy: :desc).map(&:action_id)
   end
 
-  def match_friends(user_ids)
-    follower_ids = follower_tracker.target_ids.select do |t|
-      user_ids.include?(t)
+  def match_relationships(user_ids)
+    bson_ids = user_ids.map do |id|
+      id.class.name == 'String' ? BSON::ObjectId(id) : id
     end
-    following_ids = following_tracker.target_ids.select do |t|
-      user_ids.include?(t)
+    bson_ids.map do |id|
+      { _id: id,
+        follower: follower_tracker.target_ids.include?(id) ? 'Yes' : 'No',
+        following: following_tracker.target_ids.include?(id) ? 'Yes' : 'No' }
     end
-
-    { follower_ids: follower_ids, following_ids: following_ids }
   end
 
   def newsfeed(created_after = nil)
