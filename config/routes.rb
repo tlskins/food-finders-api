@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   resources :users, except: :create do
     get 'newsfeed', on: :member
     get 'match_relationships', on: :member
+    put 'update_relationship', on: :member
     post 'publish_draft_social_entry', on: :member
   end
   resources :tags

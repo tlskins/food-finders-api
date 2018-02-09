@@ -9,6 +9,7 @@ class UsersController < ApplicationController
       newsfeed
       publish_draft_social_entry
       match_relationships
+      update_relationship
     ]
   )
 
@@ -85,6 +86,19 @@ class UsersController < ApplicationController
   # GET /users/1/match_relationships
   def match_relationships
     render json: @user.match_relationships(params[:user_ids].split(','))
+  end
+
+  # PATCH/PUT /users/1/update_relationship
+  def update_relationship
+    target = User.find(params[:target_id])
+    @user.follow(target) if params[:type] == 'follow'
+    @user.unfollow(target) if params[:type] == 'unfollow'
+
+    if @user.reload
+      render json: @user
+    else
+      render json: @user.errors, status: :unprocessable_entity
+    end
   end
 
   private
