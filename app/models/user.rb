@@ -74,10 +74,6 @@ class User
   validates :first_name, presence: true
   validates :last_name, presence: true
 
-  def test
-    puts 'testing NEW AGAIN abc'
-  end
-
   def follow(target)
     following_tracker.add_target(target)
     target.follower_tracker.add_target(self)
