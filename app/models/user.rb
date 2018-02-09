@@ -10,8 +10,8 @@ class User
          :recoverable, :rememberable, :trackable, :validatable, :confirmable
 
   ## Database authenticatable
-  field :email,              type: String, default: ""
-  field :encrypted_password, type: String, default: ""
+  field :email,              type: String, default: ''
+  field :encrypted_password, type: String, default: ''
 
   ## Recoverable
   field :reset_password_token,   type: String
@@ -41,6 +41,8 @@ class User
   field :handle, type: String
   field :first_name, type: String
   field :last_name, type: String
+  field :followers_count, type: Integer, default: 0
+  field :following_count, type: Integer, default: 0
 
   has_many :actions, as: :actor
   has_many :newsfeed_items
@@ -88,6 +90,14 @@ class User
 
   def followed_by?(target)
     follower_tracker.includes_target?(target)
+  end
+
+  # TODO : move all following functionality to followable concern
+  def refresh_friends_count
+    update_attributes(
+      followers_count: follower_tracker.target_count,
+      following_count: following_tracker.target_count
+    )
   end
 
   # Used to set taggable symbol in tag

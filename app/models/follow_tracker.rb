@@ -16,6 +16,7 @@ class FollowTracker
     return if target.nil? || target_ids.include?(target.id)
     target_ids << target.id
     update_attributes(target_ids: target_ids, target_count: target_count + 1)
+    followable.refresh_friends_count if followable.present?
   end
 
   def find_target_index(target)
@@ -27,6 +28,7 @@ class FollowTracker
     return if index.nil?
     target_ids.slice!(index)
     update_attributes(target_ids: target_ids, target_count: target_count - 1)
+    followable.refresh_friends_count if followable.present?
   end
 
   def reset
