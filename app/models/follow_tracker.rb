@@ -33,5 +33,6 @@ class FollowTracker
 
   def reset
     update_attributes(target_ids: [], target_count: 0)
+    followable.refresh_friends_count if followable.present?
   end
 end

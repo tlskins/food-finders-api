@@ -74,6 +74,10 @@ class User
   validates :first_name, presence: true
   validates :last_name, presence: true
 
+  def test
+    puts 'testing NEW AGAIN abc'
+  end
+
   def follow(target)
     following_tracker.add_target(target)
     target.follower_tracker.add_target(self)
@@ -116,6 +120,17 @@ class User
 
   def relevant_newsfeed_ids
     newsfeed_items.limit(25).order_by(relevancy: :desc).map(&:action_id)
+  end
+
+  def match_friends(user_ids)
+    follower_ids = follower_tracker.target_ids.select do |t|
+      user_ids.include?(t)
+    end
+    following_ids = following_tracker.target_ids.select do |t|
+      user_ids.include?(t)
+    end
+
+    { follower_ids: follower_ids, following_ids: following_ids }
   end
 
   def newsfeed(created_after = nil)

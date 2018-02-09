@@ -5,8 +5,8 @@ class UsersController < ApplicationController
     only: %i[show update destroy newsfeed publish_draft_social_entry]
   )
 
-  def find_by_text(users, params)
-    text_regex = Regexp.new(params[:text], Regexp::IGNORECASE)
+  def find_by_text(users, text)
+    text_regex = Regexp.new(text, Regexp::IGNORECASE)
     users.where(
       :$or => [
         { first_name: text_regex },
@@ -20,7 +20,7 @@ class UsersController < ApplicationController
   def index
     @users = User.all
 
-    @users = find_by_text(@users, params) if params[:text].present?
+    @users = find_by_text(@users, params[:text]) if params[:text].present?
 
     render json: @users
   end

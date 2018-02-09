@@ -2,13 +2,13 @@
 class TagsController < ApplicationController
   before_action :set_tag, only: %i[show update destroy]
 
-  def find_by_symbol(tags, params)
-    symbol = params[:symbol] == '%23' ? '#' : params[:symbol]
-    tags.where(symbol: symbol)
+  def find_by_symbol(tags, symbol)
+    parsed_symbol = symbol == '%23' ? '#' : symbol
+    tags.where(symbol: parsed_symbol)
   end
 
-  def find_by_text(tags, params)
-    text_regex = Regexp.new(params[:text], Regexp::IGNORECASE)
+  def find_by_text(tags, text)
+    text_regex = Regexp.new(text, Regexp::IGNORECASE)
     tags.where(
       :$or => [
         { name: text_regex },
@@ -21,9 +21,9 @@ class TagsController < ApplicationController
   def index
     @tags = Tag.all
 
-    @tags = find_by_symbol(@tags, params) if params[:symbol].present?
+    @tags = find_by_symbol(@tags, params[:symbol]) if params[:symbol].present?
 
-    @tags = find_by_text(@tags, params) if params[:text].present?
+    @tags = find_by_text(@tags, params[:text]) if params[:text].present?
 
     render json: @tags
   end
