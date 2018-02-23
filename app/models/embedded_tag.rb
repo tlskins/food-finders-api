@@ -6,6 +6,7 @@ class EmbeddedTag
   field :handle, type: String
   field :name, type: String
   field :symbol, type: String
+  field :taggable_type, type: String
   belongs_to :tag
 
   embedded_in :embeddable_tag, polymorphic: true

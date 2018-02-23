@@ -27,8 +27,10 @@ class SocialEntry
   end
 
   def metadata
+    author_name = user.handle ? '@' + user.handle : user.full_name
     { author_type: user.class.name,
       author_id: user.id,
+      author_name: author_name,
       data_type: 'text',
       data: text,
       created_at: created_at }

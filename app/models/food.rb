@@ -8,11 +8,6 @@ class Food
 
   has_many :votes
 
-  # Used to set taggable symbol in tag
-  def tagging_symbol
-    '^'
-  end
-
   def calculate_vote_totals
     vote_totals = votes.collection.aggregate(
       [{ :$group =>
@@ -21,5 +16,15 @@ class Food
             'count' => { :$sum => 1 } } }]
     ).entries
     update_attribute(:vote_totals, vote_totals)
+  end
+
+  # Used to set taggable symbol in tag
+  def tagging_symbol
+    '^'
+  end
+
+  # Used to set a unique public tag identifier
+  def tagging_raw_handle
+    handlefy(name)
   end
 end

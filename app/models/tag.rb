@@ -56,7 +56,7 @@ class Tag
     embeddable_attrs = attributes
     # Transpose id to tag_id for belongs to tag association
     embeddable_attrs['tag_id'] = embeddable_attrs['_id']
-    whitelisted_attributes = %w[handle name symbol tag_id]
+    whitelisted_attributes = %w[handle name symbol tag_id taggable_type]
     # Delete all non whitelisted attributes
     embeddable_attrs.each_key do |key|
       embeddable_attrs.delete(key) if whitelisted_attributes.exclude?(key)

@@ -51,13 +51,15 @@ class User
     :follower_tracker,
     class_name: 'FollowTracker',
     autobuild: true,
-    autosave: true
+    autosave: true,
+    dependent: :destroy
   )
   belongs_to(
     :following_tracker,
     class_name: 'FollowTracker',
     autobuild: true,
-    autosave: true
+    autosave: true,
+    dependent: :destroy
   )
 
   has_many :social_entries
@@ -71,6 +73,10 @@ class User
   # TODO : name validitions on special chars, spaces
   validates :first_name, presence: true
   validates :last_name, presence: true
+
+  def full_name
+    [first_name, last_name].join(' ')
+  end
 
   def follow(target)
     following_tracker.add_target(target)
@@ -103,6 +109,14 @@ class User
     '@'
   end
 
+  # Used to set a unique public tag identifier
+  def tagging_raw_handle
+    # If unique handle is already chosen use that
+    return handle if handle.present?
+
+    handlefy(name)
+  end
+
   def publish_draft_social_entry
     social_entries.create(text: draft_social_entry.text)
     draft_social_entry.update_attributes(
@@ -128,15 +142,10 @@ class User
   end
 
   def newsfeed(created_after = nil)
-    if created_after.present?
-      Action.where(
-        :$and => [
-          { id: { :$in => relevant_newsfeed_ids } },
-          { :created_at.gt => created_after }
-        ]
-      )
-    else
-      Action.where(id: { :$in => relevant_newsfeed_ids })
+    actions = Action.where(id: { :$in => relevant_newsfeed_ids })
+    if created_at.present?
+      actions = actions.where(:created_at.gt => created_after)
     end
+    actions.order_by(conducted_at: 'desc')
   end
 end

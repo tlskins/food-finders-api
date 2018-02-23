@@ -19,13 +19,13 @@ module Parseable
   end
 
   def parse_text
+    # Remove existing tags
+    tags.delete_all
     return if text.empty?
 
     handles = identify_handles
     return if handles.empty?
 
-    # Remove existing tags
-    tags.delete_all
     # Create embedded tag docs for them
     Tag.find_by_handles(*handles).map do |t|
       tags.create(t.embeddable_attributes)
