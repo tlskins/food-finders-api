@@ -2,6 +2,7 @@
 class Action
   include Mongoid::Document
   include Mongoid::Timestamps
+  include Mongoid::Attributes::Dynamic
 
   # Written to relevancy in the newsfeed item
   field :conducted_at, type: DateTime
@@ -53,10 +54,10 @@ class Action
     follower_ids.each do |follower_id|
       newsfeed_items.create(user_id: follower_id, relevancy: conducted_at)
     end
-    update_attributes(fan_out_status: 'done')
+    set(fan_out_status: 'done')
   rescue StandardError => error
     logger.error 'Error on action fan out - error message: ' + error.message
-    update_attributes(fan_out_status: 'error')
+    set(fan_out_status: 'error')
   end
 
   def fan_out_action_job
@@ -72,11 +73,19 @@ class Action
   protected
 
   def write_actionable_data
-    self.actor_id = actionable.actor.id
-    self.actor_type = actionable.actor.class.name
-    self.conducted_at = Time.now
-    self.fan_out_status = 'pending'
-    self.scope = actionable.scope
-    self.metadata = actionable.metadata
+    set(
+      actor_id: actionable.actor.id,
+      actor_type: actionable.actor.class.name,
+      conducted_at: Time.now,
+      fan_out_status: 'pending',
+      scope: actionable.scope,
+      metadata: actionable.metadata
+    )
+    # actor_id = actionable.actor.id
+    # actor_type = actionable.actor.class.name
+    # conducted_at = Time.now
+    # fan_out_status = 'pending'
+    # scope = actionable.scope
+    # metadata = actionable.metadata
   end
 end

@@ -10,7 +10,6 @@ class EmbeddedSocialEntry
   embedded_in :embeddable_social_entry, polymorphic: true
 
   def reset_text
-    logger.info 'EmbeddedSocialEntry.reset_text called'
     update_attributes(text: '', tags: [])
   end
 

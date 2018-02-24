@@ -14,7 +14,7 @@ class SocialEntry
   validates :text, presence: true, length: { minimum: 3, maximum: 160 }
   validates :user, presence: true
 
-  after_create :parse_text
+  after_save :parse_text
 
   ### Actionable Methods ###
 
@@ -28,11 +28,14 @@ class SocialEntry
 
   def metadata
     author_name = user.handle ? '@' + user.handle : user.full_name
+    tag_attrs = tags.map(&:attributes)
     { author_type: user.class.name,
       author_id: user.id,
       author_name: author_name,
       data_type: 'text',
       data: text,
-      created_at: created_at }
+      created_at: created_at,
+      tags: tag_attrs,
+      tag_indices: tag_indices }
   end
 end
