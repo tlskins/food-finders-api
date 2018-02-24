@@ -143,7 +143,7 @@ class User
 
   def newsfeed(created_after = nil)
     actions = Action.where(id: { :$in => relevant_newsfeed_ids })
-    if created_at.present?
+    if created_after.present?
       actions = actions.where(:created_at.gt => created_after)
     end
     actions.order_by(conducted_at: 'desc')

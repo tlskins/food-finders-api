@@ -38,11 +38,11 @@ class Tag
   index({ symbol: 1, name: 1 }, background: true)
   index({ symbol: 1, handle: 1 }, unique: true, background: true)
 
-  scope :find_by_handle, lambda { |handle|
-    where(symbol: handle[0], handle: handle[1..-1])
-  }
+  def self.find_by_tag(handle)
+    find_by(symbol: handle[0], handle: handle[1..-1])
+  end
 
-  scope :find_by_handles, lambda { |*handles|
+  scope :find_by_tags, lambda { |*handles|
     or_array = handles.map { |h| { symbol: h[0], handle: h[1..-1] } }
     where(:$or => or_array)
   }
