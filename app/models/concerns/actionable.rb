@@ -4,16 +4,7 @@ module Actionable
   extend ActiveModel::Callbacks
 
   included do
-    after_create :autocreate_action
-
     has_one :action, as: :actionable
-  end
-
-  attr_accessor :dont_autobuild_on_create
-
-  def autocreate_action
-    return if action.present? || @dont_autobuild_on_create
-    create_action
   end
 
   def actor

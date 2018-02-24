@@ -81,11 +81,5 @@ class Action
       scope: actionable.scope,
       metadata: actionable.metadata
     )
-    # actor_id = actionable.actor.id
-    # actor_type = actionable.actor.class.name
-    # conducted_at = Time.now
-    # fan_out_status = 'pending'
-    # scope = actionable.scope
-    # metadata = actionable.metadata
   end
 end

@@ -118,7 +118,8 @@ class User
   end
 
   def publish_draft_social_entry
-    social_entries.create(text: draft_social_entry.text)
+    social_entry = social_entries.create(text: draft_social_entry.text)
+    social_entry.create_action
     draft_social_entry.update_attributes(
       text: '',
       tags: [],

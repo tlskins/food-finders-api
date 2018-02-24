@@ -35,7 +35,6 @@ class SocialEntry
       data_type: 'text',
       data: text,
       created_at: created_at,
-      tags: tag_attrs,
-      tag_indices: tag_indices }
+      tags: tag_attrs }
   end
 end
