@@ -205,6 +205,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  activemodel
   byebug
   devise
   factory_girl_rails (~> 4.8)

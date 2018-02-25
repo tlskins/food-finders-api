@@ -7,9 +7,7 @@ class Entity
   field :handle, type: String
   field :yelp_business, type: Hash
   field :yelp_business_id, type: String
-  field :vote_totals, type: Array
-
-  has_many :votes
+  # field :vote_totals, type: Array
 
   validates :yelp_business_id, uniqueness: true
 
@@ -34,15 +32,15 @@ class Entity
     update_yelp_business_data
   end
 
-  def calculate_vote_totals
-    vote_totals = votes.collection.aggregate(
-      [{ :$group =>
-          { '_id' =>
-            { food_name: '$food_name', hashtag_name: '$hashtag_name' },
-            'count' => { :$sum => 1 } } }]
-    ).entries
-    update_attribute(:vote_totals, vote_totals)
-  end
+  # def calculate_vote_totals
+  #   vote_totals = votes.collection.aggregate(
+  #     [{ :$group =>
+  #         { '_id' =>
+  #           { food_name: '$food_name', hashtag_name: '$hashtag_name' },
+  #           'count' => { :$sum => 1 } } }]
+  #   ).entries
+  #   update_attribute(:vote_totals, vote_totals)
+  # end
 
   protected
 

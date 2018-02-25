@@ -46,7 +46,6 @@ class User
 
   has_many :actions, as: :actor
   has_many :newsfeed_items
-  has_many :votes
   belongs_to(
     :follower_tracker,
     class_name: 'FollowTracker',

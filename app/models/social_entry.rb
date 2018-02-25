@@ -8,8 +8,11 @@ class SocialEntry
   field :text, type: String
 
   belongs_to :user
-  has_one :vote
-  recursively_embeds_many
+  has_one :rating
+
+  # TODO : Dont use recursively embeds, dont want to allow sub entries
+  # to create ratings
+  # recursively_embeds_many
 
   validates :text, presence: true, length: { minimum: 3, maximum: 160 }
   validates :user, presence: true
