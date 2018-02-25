@@ -65,7 +65,7 @@ class UsersController < ApplicationController
 
   # POST /users/1/publish_draft_social_entry
   def publish_draft_social_entry
-    if @user.publish_draft_social_entry
+    if @user.publish_draft_social_entry(params[:text])
       @user.reload
       render json: @user
     else
