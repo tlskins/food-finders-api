@@ -3,6 +3,7 @@ class Entity
   include Mongoid::Document
   include Mongoid::Timestamps
   include Taggable
+  include Rateeable
 
   field :handle, type: String
   field :yelp_business, type: Hash
@@ -30,6 +31,13 @@ class Entity
   def yelp_business=(params)
     super(params)
     update_yelp_business_data
+  end
+
+  def embeddable_attributes
+    { _id: id,
+      name: name,
+      yelp_business_id: yelp_business_id,
+      created_at: created_at }
   end
 
   # def calculate_vote_totals

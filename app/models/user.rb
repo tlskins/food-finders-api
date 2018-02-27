@@ -3,6 +3,7 @@ class User
   include Mongoid::Timestamps
   include Mongoid::Attributes::Dynamic
   include Taggable
+  include Raterable
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
@@ -147,5 +148,15 @@ class User
       actions = actions.where(:created_at.gt => created_after)
     end
     actions.order_by(conducted_at: 'desc')
+  end
+
+  def embeddable_attributes
+    { _id: _id,
+      name: name,
+      first_name: first_name,
+      last_name: last_name,
+      created_at: created_at,
+      followers_count: followers_count,
+      following_count: following_count }
   end
 end

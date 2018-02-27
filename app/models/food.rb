@@ -3,6 +3,7 @@ class Food
   include Mongoid::Document
   include Mongoid::Timestamps::Created
   include Taggable
+  include Rateable
 
   # field :vote_totals, type: Array
   #
