@@ -1,11 +1,10 @@
-# Provides all the functionality so that an object is raterable
+# Provides all the functionality so that an object is rateeable
 module Raterable
   extend ActiveSupport::Concern
 
   included do
     field :rating_aggregates, type: Array
-
-    has_many :ratings, as: :raterable
+    # has_many :ratings, as: :rateeable
   end
 
   def embeddable_attributes

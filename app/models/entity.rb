@@ -5,6 +5,12 @@ class Entity
   include Taggable
   include Rateeable
 
+  has_many(
+    :ratings,
+    class_name: 'FoodRating',
+    inverse_of: :ratee
+  )
+
   field :handle, type: String
   field :yelp_business, type: Hash
   field :yelp_business_id, type: String

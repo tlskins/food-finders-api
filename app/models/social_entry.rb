@@ -8,7 +8,7 @@ class SocialEntry
   field :text, type: String
 
   belongs_to :user
-  has_one :rating
+  has_one :food_rating
 
   # TODO : Dont use recursively embeds, dont want to allow sub entries
   # to create ratings

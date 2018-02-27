@@ -3,4 +3,10 @@
 # entity, food, user
 class RatingTypeHashtag < Hashtag
   include RatingTypeable
+
+  has_many(
+    :ratings,
+    class_name: 'FoodRating',
+    inverse_of: :rating_type
+  )
 end

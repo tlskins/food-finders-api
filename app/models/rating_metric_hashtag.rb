@@ -1,6 +1,14 @@
 # Inherits from Hashtag - describes a characteristic of a dish to
 # substantiate the rating
 class RatingMetricHashtag < Hashtag
+  include RatingMetrizable
+
+  has_many(
+    :ratings,
+    class_name: 'FoodRating',
+    inverse_of: :rating_metrics
+  )
+
   field :rating_aggregates, type: Array
   field :description, type: String
 
@@ -15,7 +23,7 @@ class RatingMetricHashtag < Hashtag
     class_name: 'RatingMetricHashtag',
     foreign_key: 'parent_metric_id'
   )
-  has_and_belongs_to_many :ratings, index: true
+  has_and_belongs_to_many :food_ratings, index: true
 
   validates :description, presence: true
 

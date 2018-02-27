@@ -5,6 +5,12 @@ class Food
   include Taggable
   include Rateable
 
+  has_many(
+    :ratings,
+    class_name: 'FoodRating',
+    inverse_of: :rateable
+  )
+
   # field :vote_totals, type: Array
   #
   # def calculate_vote_totals

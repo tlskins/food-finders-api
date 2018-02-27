@@ -1,3 +1,4 @@
+# User class
 class User
   include Mongoid::Document
   include Mongoid::Timestamps
@@ -45,6 +46,11 @@ class User
   field :followers_count, type: Integer, default: 0
   field :following_count, type: Integer, default: 0
 
+  has_many(
+    :ratings,
+    class_name: 'FoodRating',
+    inverse_of: :rater
+  )
   has_many :actions, as: :actor
   has_many :newsfeed_items
   belongs_to(

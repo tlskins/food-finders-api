@@ -4,8 +4,7 @@ module Rateeable
 
   included do
     field :rating_aggregates, type: Array
-
-    has_many :ratings, as: :rateeable
+    # has_many :ratings, as: :rateeable
   end
 
   def embeddable_attributes
