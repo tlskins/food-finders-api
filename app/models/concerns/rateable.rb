@@ -1,11 +1,27 @@
-# Provides all the functionality so that an object is rateable
+# Provides all the functionality so that an object is rateable (Food)
 module Rateable
   extend ActiveSupport::Concern
 
   included do
-    include Mongoid::Document
-    field :rating_aggregates, type: Array
-    # has_many :ratings, as: :rateable
+    field :ratings_aggregates, type: Array
+  end
+
+  def ratings
+    raise 'ratings not associated'
+  end
+
+  def aggregate_ratings
+    ratings_aggregates = ratings.collection.aggregate(
+      [
+        { :$unwind => '$embedded_rating_metrics' },
+        { :$group =>
+          { _id:  { ratee_name: '$embedded_ratee.name',
+                    rating_type_name: '$embedded_rating_type.name',
+                    rating_metric_name: '$embedded_rating_metrics.name' },
+            total: { '$sum' => 1 } } }
+      ]
+    ).entries
+    update_attribute(:ratings_aggregates, ratings_aggregates)
   end
 
   def embeddable_attributes

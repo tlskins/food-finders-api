@@ -3,8 +3,26 @@ module RatingTypeable
   extend ActiveSupport::Concern
 
   included do
-    field :rating_aggregates, type: Array
-    # has_many :ratings, as: :rating_type
+    field :ratings_aggregates, type: Array
+  end
+
+  def ratings
+    raise 'ratings not associated'
+  end
+
+  def aggregate_ratings
+    ratings_aggregates = ratings.collection.aggregate(
+      [
+        { :$unwind => '$embedded_rating_metrics' },
+        { :$group =>
+          { _id:  { rateable_name: '$embedded_rateable.name',
+                    ratee_name: '$embedded_ratee.name',
+                    rating_type_name: '$embedded_rating_type.name',
+                    rating_metric_name: '$embedded_rating_metrics.name' },
+            total: { '$sum' => 1 } } }
+      ]
+    ).entries
+    update_attribute(:ratings_aggregates, ratings_aggregates)
   end
 
   def embeddable_attributes

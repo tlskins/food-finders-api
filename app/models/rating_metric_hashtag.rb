@@ -10,6 +10,9 @@ class RatingMetricHashtag < Hashtag
   )
 
   field :rating_aggregates, type: Array
+
+  has_and_belongs_to_many :food_ratings, index: true
+  # Move to adoptable ---
   field :description, type: String
 
   belongs_to(
@@ -23,9 +26,9 @@ class RatingMetricHashtag < Hashtag
     class_name: 'RatingMetricHashtag',
     foreign_key: 'parent_metric_id'
   )
-  has_and_belongs_to_many :food_ratings, index: true
 
   validates :description, presence: true
+  # Move to adoptable ---
 
   def embeddable_attributes
     { _id: _id,

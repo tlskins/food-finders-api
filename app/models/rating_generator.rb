@@ -137,26 +137,14 @@ class RatingGenerator
       embedded_rating_type: to_embedded(@rating_type),
       embedded_rating_metrics: to_embedded(@rating_metrics)
     )
+    update_rating_aggregates
   end
 
+  protected
+
   def update_rating_aggregates
-    # def calculate_vote_totals
-    #   vote_totals = votes.collection.aggregate(
-    #     [{ :$group =>
-    #         { '_id' =>
-    #           { entity_name: '$entity_name', food_name: '$food_name' },
-    #           'count' => { :$sum => 1 } } }]
-    #   ).entries
-    #   update_attribute(:vote_totals, vote_totals)
-    # end
-    #
-    # TODO : Add index to embedded.names
-    # TODO : Just aggregate by most granular level then re-aggregate as needed on front end
-    FoodRating.collection.aggregate(
-      [{ :$group =>
-        { '_id' =>
-          { entity_name: '$embedded_ratee.name' },
-          'count' => { :$sum => 1 } } }]
-    ).entries
+    core_attributes = [@rateable, @rater, @ratee, @rating_type, @rating_metrics]
+    core_attributes = core_attributes.flatten
+    core_attributes.map(&:aggregate_ratings)
   end
 end
