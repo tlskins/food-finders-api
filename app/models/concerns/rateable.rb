@@ -10,6 +10,10 @@ module Rateable
     raise 'ratings not associated'
   end
 
+  def rating_class
+    raise 'rating class not set!'
+  end
+
   def aggregate_ratings
     ratings_aggregates = ratings.collection.aggregate(
       [

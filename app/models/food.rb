@@ -5,7 +5,7 @@ class Food
   include Taggable
   include Rateable
 
-  attr_accessor :rating_class
+  # attr_accessor :rating_class
 
   has_many(
     :ratings,
@@ -21,5 +21,9 @@ class Food
   # Used to set a unique public tag identifier
   def tagging_raw_handle
     handlefy(name)
+  end
+
+  def self.rating_class
+    FoodRating
   end
 end
