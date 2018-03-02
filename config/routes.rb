@@ -11,6 +11,7 @@ Rails.application.routes.draw do
     put 'update_relationship', on: :member
     post 'publish_draft_social_entry', on: :member
   end
+  resources :hierarchy_trees, only: :index
   resources :tags
   resources :entities
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
