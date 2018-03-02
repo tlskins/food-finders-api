@@ -118,9 +118,11 @@ class RatingGenerator
     @rateable = Food.last
     @rater = User.first
     @ratee = Entity.last
-    @rating_type = RatingTypeHashtag.last
-    @rating_metrics = [RatingMetricHashtag.first, RatingMetricHashtag.last]
+    @rating_type = FoodRatingType.last
+    @rating_metrics = [FoodRatingMetric.first, FoodRatingMetric.last]
   end
+
+  # TODO : Make compatible with controller params
 
   def create_rating
     return unless valid?

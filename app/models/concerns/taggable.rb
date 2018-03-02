@@ -7,15 +7,12 @@ module Taggable
 
     has_one :tag, as: :taggable, dependent: :destroy
 
-    # TODO : Correct uniq validation for symbold + handle
     validates(
       :name,
       presence: true,
       uniqueness: true,
       length: { minimum: 3, maximum: 20 }
     )
-
-    after_create :create_tag
 
     index({ name: 1 }, background: true, unique: true, drop_dups: true)
   end

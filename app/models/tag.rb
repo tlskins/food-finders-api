@@ -14,7 +14,7 @@ class Tag
   belongs_to :taggable, polymorphic: true
 
   def self.reserved_symbols
-    ['#', '^', '@']
+    ['#', '^', '@', '&']
   end
 
   # TODO : Fix valid tag format regex
