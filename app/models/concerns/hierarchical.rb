@@ -14,12 +14,17 @@ module Hierarchical
       :parent,
       class_name: name,
       index: true,
+      counter_cache: true,
       optional: true
     )
     has_many(
       :children,
       class_name: name,
       foreign_key: 'parent_id'
+    )
+    has_and_belongs_to_many(
+      :siblings,
+      class_name: name
     )
 
     validates :description, :path, :depth, presence: true
@@ -29,13 +34,13 @@ module Hierarchical
     scope :roots, -> { where(depth: 0) }
 
     def self.calculate_roots
-      all.each do |node|
+      all.entries.each do |node|
         node.set_root if node.parent.nil?
       end
     end
 
     def self.calculate_all_ancestry(targets = nil)
-      puts 'self.calculate_all_ancestry, targets=' + targets.inspect
+      # puts 'self.calculate_all_ancestry, targets=' + targets.inspect
       calculate_roots if targets.nil?
       targets ||= roots.entries
       targets.each do |target|
@@ -51,6 +56,12 @@ module Hierarchical
       path: parent.path + parent.name + '/',
       depth: parent.depth + 1
     )
+    self.siblings = find_siblings
+  end
+
+  def find_siblings
+    return self.class.roots.reject { |root| root.id == id } if parent.nil?
+    parent.children.reject { |child| child.id == id }
   end
 
   def set_root
@@ -58,5 +69,6 @@ module Hierarchical
       path: '/',
       depth: 0
     )
+    self.siblings = find_siblings
   end
 end

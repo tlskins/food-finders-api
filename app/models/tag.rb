@@ -71,6 +71,7 @@ class Tag
   protected
 
   def write_taggable_data
+    puts 'write_taggable_data - ' + taggable.inspect
     return if taggable.nil?
     # Need to standardize handle into a tag including:
     # Removing spaces, special chars except underscore
