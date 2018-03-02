@@ -14,10 +14,6 @@ class FoodRatingType
     inverse_of: :rating_type
   )
 
-  def self.testabc
-    puts 'test'
-  end
-
   # Used to set taggable symbol in tag
   def tagging_symbol
     '#'

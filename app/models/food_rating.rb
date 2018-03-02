@@ -10,13 +10,13 @@ class FoodRating
   belongs_to :ratee, class_name: 'Entity', inverse_of: :ratings, index: true
   belongs_to(
     :rating_type,
-    class_name: 'RatingTypeTag',
+    class_name: 'FoodRatingType',
     inverse_of: :ratings,
     index: true
   )
   has_and_belongs_to_many(
     :rating_metrics,
-    class_name: 'RatingMetricTag',
+    class_name: 'FoodRatingMetric',
     inverse_of: :ratings,
     index: true
   )

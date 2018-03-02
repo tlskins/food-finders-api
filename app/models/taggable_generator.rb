@@ -4,9 +4,8 @@ class TaggableGenerator
 
   attr_reader :taggable_class, :hierarchy_tree
 
-  validate :valid_taggable
-
   validates :taggable_class, :hierarchy_tree, presence: true
+  validate :valid_taggable
 
   # Helper functions
 
@@ -38,10 +37,11 @@ class TaggableGenerator
     parent = @taggable_class.find_by(name: params[:parent])
     params[:parent] = parent
     taggable = @taggable_class.create(params)
-    return unless taggable.valid?
+    return taggable unless taggable.valid?
     taggable.calculate_ancestry
     taggable.create_tag
     @hierarchy_tree.calculate_tree(@taggable_class)
+    taggable
   end
 
   def destroy_taggable(id)
