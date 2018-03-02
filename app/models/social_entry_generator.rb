@@ -3,11 +3,11 @@ class SocialEntryGenerator
   include ActiveModel::Validations
 
   attr_accessor(
-    rateable,
-    rateeable,
-    raterable,
-    rating_typeable,
-    rating_metrizables
+    :rateable,
+    :rateeable,
+    :raterable,
+    :rating_typeable,
+    :rating_metrizables
   )
 
   # Helper functions

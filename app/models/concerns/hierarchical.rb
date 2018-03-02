@@ -5,8 +5,8 @@ module Hierarchical
   included do
     field :description, type: String
     field :synonyms, type: Array, default: []
-    field :lineage, type: String, default: '/'
-    field :generation, type: Integer, default: 0
+    field :path, type: String
+    field :depth, type: Integer
 
     after_create :calculate_ancestry
 
@@ -22,18 +22,41 @@ module Hierarchical
       foreign_key: 'parent_id'
     )
 
-    validates :description, :lineage, :generation, presence: true
+    validates :description, :path, :depth, presence: true
 
-    index({ generation: 1 }, background: true)
+    index({ depth: 1 }, background: true)
 
-    scope :roots, -> { where(generation: 0) }
+    scope :roots, -> { where(depth: 0) }
+
+    def self.calculate_roots
+      all.each do |node|
+        node.set_root if node.parent.nil?
+      end
+    end
+
+    def self.calculate_all_ancestry(targets = nil)
+      puts 'self.calculate_all_ancestry, targets=' + targets.inspect
+      calculate_roots if targets.nil?
+      targets ||= roots.entries
+      targets.each do |target|
+        target.calculate_ancestry
+        calculate_all_ancestry(target.children) if target.children.present?
+      end
+    end
   end
 
   def calculate_ancestry
     return if parent.nil?
     update_attributes(
-      lineage: parent.lineage + parent.name + '/',
-      generation: parent.generation + 1
+      path: parent.path + parent.name + '/',
+      depth: parent.depth + 1
+    )
+  end
+
+  def set_root
+    update_attributes(
+      path: '/',
+      depth: 0
     )
   end
 end
