@@ -9,7 +9,7 @@ development:
       # Provides the hosts the default client can connect to. Must be an array
       # of host:port pairs. (required)
       hosts:
-        - localhost:27017
+        - mongodb:27017
       options:
         # Change the default write concern. (default = { w: 1 })
         # write:
@@ -116,7 +116,7 @@ development:
 
     # Raise an error when performing a #find and the document is not found.
     # (default: true)
-    raise_not_found_error: false
+    # raise_not_found_error: true
 
     # Raise an error when defining a scope with the same name as an
     # existing method. (default: false)
@@ -148,13 +148,21 @@ development:
 test:
   clients:
     default:
-      # database: food_finders_api_test
-      database: food_finders_api_development
+      database: food_finders_api_test
       hosts:
-        - localhost:27017
+        - mongodb:27017
       options:
         read:
           mode: :primary
         max_pool_size: 1
-  options:
-    raise_not_found_error: false
+
+production:
+  clients:
+    default:
+      database: food_finders_api_production
+      hosts:
+        - mongodb:27017
+      options:
+        read:
+          mode: :primary
+        max_pool_size: 1
