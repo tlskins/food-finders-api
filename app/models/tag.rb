@@ -45,6 +45,27 @@ class Tag
     where(:$or => or_array)
   }
 
+  scope :find_by_symbol, lambda { |symbol|
+    parsed_symbol = symbol == '%23' ? '#' : symbol
+    where(symbol: parsed_symbol)
+  }
+
+  scope :find_by_text, lambda { |text|
+    text_regex = ::Regexp.new(text, ::Regexp::IGNORECASE)
+    where(
+      :$or => [
+        { name: text_regex },
+        { handle: text_regex },
+        { 'embedded_taggable.description' => text_regex },
+        { 'embedded_taggable.synonyms' => text_regex }
+      ]
+    )
+  }
+
+  scope :find_by_path, lambda { |path|
+    tags.where(path: path)
+  }
+
   def taggable_type=(params)
     super(params)
     write_taggable_data
@@ -67,10 +88,11 @@ class Tag
 
   def write_taggable_data
     return if taggable.nil?
-    self.handle = Tag.clean_handle(taggable.tagging_raw_handle)
-    self.name = taggable.tagging_name
-    self.symbol = taggable.tagging_symbol
-    return unless taggable.taggable_attributes.present?
-    self.embedded_taggable = taggable.taggable_attributes
+    set(
+      handle: Tag.clean_handle(taggable.tagging_raw_handle),
+      name: taggable.tagging_name,
+      symbol: taggable.tagging_symbol,
+      embedded_taggable: taggable.taggable_attributes
+    )
   end
 end
