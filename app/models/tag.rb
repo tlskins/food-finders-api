@@ -3,12 +3,10 @@ class Tag
   include Mongoid::Document
   include Mongoid::Timestamps
 
-  # Unique identifier, per symbol, typed in a social entry
   field :handle, type: String
-  # Tag name to be displayed
   field :name, type: String
-  # The typed reserved symbol to indicate a taggable type
   field :symbol, type: String
+  field :embedded_taggable, type: Hash
 
   has_and_belongs_to_many :social_entries
   belongs_to :taggable, polymorphic: true
@@ -56,10 +54,9 @@ class Tag
     embeddable_attrs = attributes
     # Transpose id to tag_id for belongs to tag association
     embeddable_attrs['tag_id'] = embeddable_attrs['_id']
-    whitelisted_attributes = %w[handle name symbol tag_id taggable_type]
-    # Delete all non whitelisted attributes
+    whitelisted_attrs = %w[handle name symbol tag_id taggable_type embedded_taggable]
     embeddable_attrs.each_key do |key|
-      embeddable_attrs.delete(key) if whitelisted_attributes.exclude?(key)
+      embeddable_attrs.delete(key) if whitelisted_attrs.exclude?(key)
     end
   end
 
@@ -68,15 +65,12 @@ class Tag
     raw_handle.gsub(/[ ]/, '_').gsub(/['@#^*()`]/, '')
   end
 
-  protected
-
   def write_taggable_data
-    puts 'write_taggable_data - ' + taggable.inspect
     return if taggable.nil?
-    # Need to standardize handle into a tag including:
-    # Removing spaces, special chars except underscore
     self.handle = Tag.clean_handle(taggable.tagging_raw_handle)
     self.name = taggable.tagging_name
     self.symbol = taggable.tagging_symbol
+    return unless taggable.taggable_attributes.present?
+    self.embedded_taggable = taggable.taggable_attributes
   end
 end

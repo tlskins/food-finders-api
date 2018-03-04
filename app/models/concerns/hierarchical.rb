@@ -59,6 +59,10 @@ module Hierarchical
     self.siblings = find_siblings
   end
 
+  def tree
+    HierarchyTree.find_by(class_name: self.class.name)
+  end
+
   def find_siblings
     return self.class.roots.reject { |root| root.id == id } if parent.nil?
     parent.children.reject { |child| child.id == id }
@@ -70,5 +74,24 @@ module Hierarchical
       depth: 0
     )
     self.siblings = find_siblings
+  end
+
+  def orphan_taggable_attributes
+    { _id: _id,
+      name: name,
+      description: description }
+  end
+
+  def taggable_attributes
+    attrs = { _id: _id,
+              name: name,
+              description: description,
+              synonyms: synonyms,
+              created_at: created_at,
+              parent: nil,
+              children: [] }
+    attrs[:parent] = parent.orphan_taggable_attributes if parent.present?
+    attrs[:children] = children.map(&:orphan_taggable_attributes) if children.present?
+    attrs
   end
 end

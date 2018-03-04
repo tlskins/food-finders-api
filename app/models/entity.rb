@@ -46,16 +46,6 @@ class Entity
       created_at: created_at }
   end
 
-  # def calculate_vote_totals
-  #   vote_totals = votes.collection.aggregate(
-  #     [{ :$group =>
-  #         { '_id' =>
-  #           { food_name: '$food_name', hashtag_name: '$hashtag_name' },
-  #           'count' => { :$sum => 1 } } }]
-  #   ).entries
-  #   update_attribute(:vote_totals, vote_totals)
-  # end
-
   protected
 
   def update_yelp_business_data

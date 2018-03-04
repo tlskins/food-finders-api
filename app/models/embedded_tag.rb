@@ -9,6 +9,7 @@ class EmbeddedTag
   field :taggable_type, type: String
   field :tag_start, type: Integer
   field :tag_end, type: Integer
+  field :embedded_taggable, type: Hash
 
   belongs_to :tag
 
