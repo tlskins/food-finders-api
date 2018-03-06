@@ -2,6 +2,23 @@
 class TagsController < ApplicationController
   before_action :set_tag, only: %i[show update destroy]
 
+  # GET /all_roots
+  def all_roots
+    @all_roots = { '@' => {}, '#' => {}, '^' => {}, '&' => {} }
+    FoodRatingType.roots.map(&:tag).each do |tag|
+      @all_roots['#'][tag.handle] = tag
+      @all_roots['#']['roots'] ||= []
+      @all_roots['#']['roots'] << tag
+    end
+    FoodRatingMetric.roots.map(&:tag).each do |tag|
+      @all_roots['&'][tag.handle] = tag
+      @all_roots['&']['roots'] ||= []
+      @all_roots['&']['roots'] << tag
+    end
+
+    render json: @all_roots
+  end
+
   # GET /tags
   def index
     @tags = Tag.all

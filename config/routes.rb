@@ -12,7 +12,9 @@ Rails.application.routes.draw do
     post 'publish_draft_social_entry', on: :member
   end
   resources :hierarchy_trees, only: :index
-  resources :tags
+  resources :tags do
+    get 'all_roots', on: :collection
+  end
   resources :entities
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
   get 'yelp_search', to: 'yelp#search'

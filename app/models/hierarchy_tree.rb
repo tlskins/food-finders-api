@@ -22,7 +22,6 @@ class HierarchyTree
 
   def map_children(target, target_hash)
     target_hash[target.name] = target.embeddable_attributes
-    puts 'map_children - target.children=' + target.children.inspect
     target.children.each do |child|
       target_hash[target.name][:children] ||= {}
       map_children(child, target_hash[target.name][:children])
