@@ -77,6 +77,7 @@ module Hierarchical
   end
 
   def child_taggable_attributes
+    puts 'tag=' + tag.inspect
     if tag.present?
       tag_handle = tag.handle
       tag_symbol = tag.symbol

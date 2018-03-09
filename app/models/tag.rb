@@ -68,11 +68,6 @@ class Tag
     tags.where(path: path)
   }
 
-  # def taggable_type=(params)
-  #   super(params)
-  #   write_taggable_data
-  # end
-
   def to_s
     symbol + handle
   end
@@ -81,7 +76,7 @@ class Tag
     embeddable_attrs = attributes
     # Transpose id to tag_id for belongs to tag association
     embeddable_attrs['tag_id'] = embeddable_attrs['_id']
-    whitelisted_attrs = %w[handle name symbol tag_id taggable_type embedded_taggable]
+    whitelisted_attrs = %w[handle name symbol tag_id taggable_type taggable_id]
     embeddable_attrs.each_key do |key|
       embeddable_attrs.delete(key) if whitelisted_attrs.exclude?(key)
     end
@@ -93,28 +88,21 @@ class Tag
   end
 
   def write_taggable_data
-    puts 'write_taggable_data called!'
     return if taggable.nil?
-    set(
-      handle: Tag.clean_handle(taggable.tagging_raw_handle),
-      name: taggable.tagging_name,
-      symbol: taggable.tagging_symbol,
-      embedded_taggable: taggable.taggable_attributes
-    )
+    if taggable.respond_to? 'taggable_attributes'
+      set(
+        handle: Tag.clean_handle(taggable.tagging_raw_handle),
+        name: taggable.tagging_name,
+        symbol: taggable.tagging_symbol,
+        # TODO : change taggable_attributes to hierarchal_attributes
+        embedded_taggable: taggable.taggable_attributes
+      )
+    else
+      set(
+        handle: Tag.clean_handle(taggable.tagging_raw_handle),
+        name: taggable.tagging_name,
+        symbol: taggable.tagging_symbol
+      )
+    end
   end
-
-  # def write_relational_tag_data
-  #   return if taggable.nil?
-  #   parent = taggable.parent
-  #   parent_tag = (parent.tag && parent.tag.taggable_attributes)
-  #   children = taggable.children || []
-  #   children_tags = taggable.children.map(&:tag).map(&:taggable_attributes)
-  #
-  #   set(
-  #     handle: Tag.clean_handle(taggable.tagging_raw_handle),
-  #     name: taggable.tagging_name,
-  #     symbol: taggable.tagging_symbol,
-  #     parent: taggable.taggable_attributes
-  #   )
-  # end
 end

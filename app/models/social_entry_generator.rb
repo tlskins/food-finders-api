@@ -33,25 +33,25 @@ class SocialEntryGenerator
     target.class.included_modules.include?(RatingMetrizable)
   end
 
-  def categorize_tags
-    return unless @social_entry
-    @rating_metrizables ||= []
-    @social_entry.tags.select do |tag|
-      @rateable ||= tag if rateable?(tag)
-      @rateeable ||= tag if rateeable?(tag)
-      @raterable ||= tag if raterable?(tag)
-      @rating_typeable ||= tag if rating_typeable?(tag)
-      @rating_metrizables.push(tag) if rating_metrizable?(tag)
-    end
-  end
+  # def categorize_tags
+  #   return unless @social_entry
+  #   @rating_metrizables ||= []
+  #   @social_entry.tags.select do |tag|
+  #     @rateable ||= tag if rateable?(tag)
+  #     @rateeable ||= tag if rateeable?(tag)
+  #     @raterable ||= tag if raterable?(tag)
+  #     @rating_typeable ||= tag if rating_typeable?(tag)
+  #     @rating_metrizables.push(tag) if rating_metrizable?(tag)
+  #   end
+  # end
 
-  def all_rating_components_present
-    return false if @rateable.nil?
-    return false if @rateeable.nil?
-    return false if @raterable.nil?
-    return false if @rating_typeable.nil?
-    true
-  end
+  # def all_rating_components_present
+  #   return false if @rateable.nil?
+  #   return false if @rateeable.nil?
+  #   return false if @raterable.nil?
+  #   return false if @rating_typeable.nil?
+  #   true
+  # end
 
   # Generator functions
 
@@ -60,17 +60,18 @@ class SocialEntryGenerator
     return @social_entry unless @social_entry.valid?
     @social_entry.create_action
     return if @social_entry.tags.empty?
-    categorize_tags
-    return unless all_rating_components_present
-    generator = RatingGenerator.new(
-      @rateable.class,
-      @rateable,
-      @raterable,
-      @rateeable,
-      @rating_typeable,
-      @rating_metrizables,
-      social_entry
-    )
-    generator.create_rating
+    @social_entry.generate_food_rating
+    # categorize_tags
+    # return unless all_rating_components_present
+    # generator = RatingGenerator.new(
+    #   @rateable.class,
+    #   @rateable,
+    #   @raterable,
+    #   @rateeable,
+    #   @rating_typeable,
+    #   @rating_metrizables,
+    #   social_entry
+    # )
+    # generator.create_rating
   end
 end

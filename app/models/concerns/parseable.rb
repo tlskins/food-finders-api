@@ -10,7 +10,15 @@ module Parseable
       :tags,
       as: :embeddable_tags,
       class_name: 'EmbeddedTag'
-    )
+    ) do
+      def find_first_by_type(type)
+        where('taggable_type' => type).entries.first
+      end
+
+      def find_all_by_type(type)
+        where('taggable_type' => type).entries
+      end
+    end
   end
 
   TAG_DELIMITER = ' '.freeze

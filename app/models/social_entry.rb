@@ -10,7 +10,7 @@ class SocialEntry
   belongs_to :user
   has_one :food_rating
 
-  # TODO : Dont use recursively embeds, dont want to allow sub entries
+  # TODO : If use recursive embeds prevent ratings being associated
   # to create ratings
   # recursively_embeds_many
 
@@ -39,5 +39,50 @@ class SocialEntry
       data: text,
       created_at: created_at,
       tags: tag_attrs }
+  end
+
+  attr_accessor(
+    :rating_generator,
+    :rateable, # food
+    :rater, # user
+    :ratee, # entity
+    :rating_type, # rating type hashtag
+    :rating_metrics, # rating metrics hashtag
+  )
+
+
+  # TODO : Move to a concern
+
+  @singular_rating_attributes = %w[rateable ratee rating_type]
+  @multi_rating_attributes = %w[rating_metrics]
+  @rating_class = FoodRating
+
+  def self.singular_rating_attributes
+    @singular_rating_attributes
+  end
+
+  def self.multi_rating_attributes
+    @multi_rating_attributes
+  end
+
+  def self.rating_class
+    @rating_class
+  end
+
+  def generate_food_rating
+    return unless food_rating.nil? && tags.present? && user.present?
+    @rating_generator = RatingGenerator.new(SocialEntry.rating_class, self, user)
+    SocialEntry.singular_rating_attributes.each do |rating_attribute|
+      attribute_class = SocialEntry.rating_class.relations[rating_attribute].class_name
+      first_tag = tags.find_first_by_type(attribute_class)
+      @rating_generator.send("#{rating_attribute}=", first_tag.taggable) if first_tag.present?
+    end
+    SocialEntry.multi_rating_attributes.each do |rating_attribute|
+      attribute_class = SocialEntry.rating_class.relations[rating_attribute].class_name
+      all_tags = tags.find_all_by_type(attribute_class)
+      all_taggables = all_tags.map(&:taggable)
+      @rating_generator.send("#{rating_attribute}=", all_taggables)
+    end
+    @rating_generator.create_rating if @rating_generator.valid?
   end
 end

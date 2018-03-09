@@ -124,8 +124,6 @@ class User
   end
 
   def publish_draft_social_entry(text)
-    # social_entry = social_entries.create(text: text)
-    # social_entry.create_action
     generator = SocialEntryGenerator.new
     generator.create_social_entry(text: text, user: self)
     draft_social_entry.update_attributes(

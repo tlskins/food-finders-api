@@ -5,12 +5,12 @@ class TagsController < ApplicationController
   # GET /all_roots
   def all_roots
     @all_roots = { '@' => {}, '#' => {}, '^' => {}, '&' => {} }
-    FoodRatingType.roots.map(&:tag).each do |tag|
+    FoodRatingType.roots.select { |r| r.tag.present? }.map(&:tag).each do |tag|
       @all_roots['#'][tag.handle] = tag
       @all_roots['#']['roots'] ||= []
       @all_roots['#']['roots'] << tag
     end
-    FoodRatingMetric.roots.map(&:tag).each do |tag|
+    FoodRatingMetric.roots.select { |r| r.tag.present? }.map(&:tag).each do |tag|
       @all_roots['&'][tag.handle] = tag
       @all_roots['&']['roots'] ||= []
       @all_roots['&']['roots'] << tag

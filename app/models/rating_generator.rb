@@ -2,7 +2,7 @@
 class RatingGenerator
   include ActiveModel::Validations
 
-  attr_reader(
+  attr_accessor(
     :rating_class, # which class to create the rating in
     :social_entry,
     :rateable, # food
@@ -96,12 +96,12 @@ class RatingGenerator
 
   def initialize(
     rating_class = nil,
-    rateable = nil,
+    social_entry = nil,
     rater = nil,
+    rateable = nil,
     ratee = nil,
     rating_type = nil,
-    rating_metrics = [],
-    social_entry = nil
+    rating_metrics = []
   )
     @rating_class = rating_class
     @rateable = rateable
