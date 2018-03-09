@@ -51,22 +51,27 @@ class TaggableGenerator
     @taggable
   end
 
-  def update_all_taggables
+  def update_all_taggables(recreate_tags = false)
     @taggable_class.all.each do |taggable|
       @taggable = taggable
-      update_taggable(nil, false)
+      update_taggable(nil, false, recreate_tags)
     end
     @hierarchy_tree.calculate_tree(@taggable_class)
   end
 
-  def update_taggable(params = nil, build_tree = true)
+  def update_taggable(params = nil, build_tree = true, recreate_tags = false)
     return unless valid? && @taggable.present?
     @taggable.update(params) if params.present?
     return @taggable unless @taggable.valid?
     @taggable.calculate_ancestry
     @taggable.save
     if @taggable.tag.present?
-      @taggable.tag.write_taggable_data
+      if recreate_tags
+        @taggable.tag.destroy
+        @taggable.create_tag
+      else
+        @taggable.tag.write_taggable_data
+      end
     else
       @taggable.create_tag
     end

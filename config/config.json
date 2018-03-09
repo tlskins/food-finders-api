@@ -1,5 +1,4 @@
 {
   "env": "development",
-  "api_host": "http://apitryhungry.127.0.0.1.xip.io",
-  "braintree_tokenization_key": "sandbox_fqvd4cp2_7tfs7tr6kgbht73b"
+  "api_host": "http://food-finders-api.127.0.0.1.xip.io"
 }

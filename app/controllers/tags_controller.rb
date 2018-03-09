@@ -29,6 +29,8 @@ class TagsController < ApplicationController
 
     @tags = @tags.find_by_path(params[:path]) if params[:path].present?
 
+    @tags = @tags.find_by_handles(params[:handles]) if params[:handles].present?
+
     page = (params[:page] || 1).to_i
     results_per_page = (params[:results_per_page] || 5).to_i
 

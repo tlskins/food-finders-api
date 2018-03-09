@@ -8,8 +8,9 @@ class Tag
   field :symbol, type: String
   field :embedded_taggable, type: Hash
 
-  has_and_belongs_to_many :social_entries
   belongs_to :taggable, polymorphic: true
+
+  before_validation :write_taggable_data
 
   def self.reserved_symbols
     ['#', '^', '@', '&']
@@ -40,7 +41,8 @@ class Tag
     find_by(symbol: handle[0], handle: handle[1..-1])
   end
 
-  scope :find_by_tags, lambda { |*handles|
+  scope :find_by_handles, lambda { |handles|
+    handles = CGI.unescape(handles).split(',') if handles.class.name == 'String'
     or_array = handles.map { |h| { symbol: h[0], handle: h[1..-1] } }
     where(:$or => or_array)
   }
@@ -66,9 +68,13 @@ class Tag
     tags.where(path: path)
   }
 
-  def taggable_type=(params)
-    super(params)
-    write_taggable_data
+  # def taggable_type=(params)
+  #   super(params)
+  #   write_taggable_data
+  # end
+
+  def to_s
+    symbol + handle
   end
 
   def embeddable_attributes
@@ -87,6 +93,7 @@ class Tag
   end
 
   def write_taggable_data
+    puts 'write_taggable_data called!'
     return if taggable.nil?
     set(
       handle: Tag.clean_handle(taggable.tagging_raw_handle),
@@ -95,4 +102,19 @@ class Tag
       embedded_taggable: taggable.taggable_attributes
     )
   end
+
+  # def write_relational_tag_data
+  #   return if taggable.nil?
+  #   parent = taggable.parent
+  #   parent_tag = (parent.tag && parent.tag.taggable_attributes)
+  #   children = taggable.children || []
+  #   children_tags = taggable.children.map(&:tag).map(&:taggable_attributes)
+  #
+  #   set(
+  #     handle: Tag.clean_handle(taggable.tagging_raw_handle),
+  #     name: taggable.tagging_name,
+  #     symbol: taggable.tagging_symbol,
+  #     parent: taggable.taggable_attributes
+  #   )
+  # end
 end

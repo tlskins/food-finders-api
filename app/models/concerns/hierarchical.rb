@@ -22,10 +22,10 @@ module Hierarchical
       class_name: name,
       foreign_key: 'parent_id'
     )
-    has_and_belongs_to_many(
-      :siblings,
-      class_name: name
-    )
+    # has_and_belongs_to_many(
+    #   :siblings,
+    #   class_name: name
+    # )
 
     validates :description, :path, :depth, presence: true
 
@@ -56,30 +56,63 @@ module Hierarchical
       path: parent.path + parent.name + '/',
       depth: parent.depth + 1
     )
-    self.siblings = find_siblings
+    # self.siblings = find_siblings
   end
 
   def tree
     HierarchyTree.find_by(class_name: self.class.name)
   end
 
-  def find_siblings
-    return self.class.roots.reject { |root| root.id == id } if parent.nil?
-    parent.children.reject { |child| child.id == id }
-  end
+  # def find_siblings
+  #   return self.class.roots.reject { |root| root.id == id } if parent.nil?
+  #   parent.children.reject { |child| child.id == id }
+  # end
 
   def set_root
     update_attributes(
       path: '/',
       depth: 0
     )
-    self.siblings = find_siblings
+    # self.siblings = find_siblings
   end
 
-  def orphan_taggable_attributes
+  def child_taggable_attributes
+    if tag.present?
+      tag_handle = tag.handle
+      tag_symbol = tag.symbol
+      taggable_type = tag.taggable_type
+    end
     { _id: _id,
       name: name,
-      description: description }
+      description: description,
+      tag_handle: tag_handle,
+      tag_symbol: tag_symbol,
+      taggable_type: taggable_type }
+  end
+
+  def parent_taggable_attributes
+    if tag.present?
+      tag_handle = tag.handle
+      tag_symbol = tag.symbol
+      taggable_type = tag.taggable_type
+    end
+    # siblings = parent.present? ?
+    # parent.children.reject { |c| c.id == id }
+    # :
+    # self.class.roots.reject { |r| r.id == id }
+    siblings = if parent.present?
+                 parent.children.reject { |c| c.id == id }
+               else
+                 self.class.roots.reject { |r| r.id == id }
+               end
+    siblings = siblings.map(&:tag).map(&:to_s)
+    { _id: _id,
+      name: name,
+      description: description,
+      tag_handle: tag_handle,
+      tag_symbol: tag_symbol,
+      taggable_type: taggable_type,
+      siblings: siblings }
   end
 
   def taggable_attributes
@@ -90,8 +123,8 @@ module Hierarchical
               created_at: created_at,
               parent: nil,
               children: [] }
-    attrs[:parent] = parent.orphan_taggable_attributes if parent.present?
-    attrs[:children] = children.map(&:orphan_taggable_attributes) if children.present?
+    attrs[:parent] = parent.parent_taggable_attributes if parent.present?
+    attrs[:children] = children.map(&:child_taggable_attributes) if children.present?
     attrs
   end
 end

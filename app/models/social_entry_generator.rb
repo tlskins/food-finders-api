@@ -7,7 +7,8 @@ class SocialEntryGenerator
     :rateeable,
     :raterable,
     :rating_typeable,
-    :rating_metrizables
+    :rating_metrizables,
+    :social_entry
   )
 
   # Helper functions
@@ -33,8 +34,9 @@ class SocialEntryGenerator
   end
 
   def categorize_tags
+    return unless @social_entry
     @rating_metrizables ||= []
-    social_entry.tags.select do |tag|
+    @social_entry.tags.select do |tag|
       @rateable ||= tag if rateable?(tag)
       @rateeable ||= tag if rateeable?(tag)
       @raterable ||= tag if raterable?(tag)
@@ -53,11 +55,11 @@ class SocialEntryGenerator
 
   # Generator functions
 
-  def self.create_social_entry(params)
-    social_entry = SocialEntry.create(params)
-    return social_entry unless social_entry.valid?
-    social_entry.create_action
-    return if social_entry.tags.empty?
+  def create_social_entry(params)
+    @social_entry = SocialEntry.create(params)
+    return @social_entry unless @social_entry.valid?
+    @social_entry.create_action
+    return if @social_entry.tags.empty?
     categorize_tags
     return unless all_rating_components_present
     generator = RatingGenerator.new(
