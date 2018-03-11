@@ -7,11 +7,19 @@ class FoodRatingMetric
   include RatingMetrizable
   include Hierarchical
 
-  has_many(
+  # has_many(
+  #   :ratings,
+  #   class_name: 'FoodRating',
+  #   inverse_of: :rating_metrics
+  # )
+
+  has_and_belongs_to_many(
     :ratings,
     class_name: 'FoodRating',
-    inverse_of: :rating_metrics
+    inverse_of: :rating_metrics,
+    index: true
   )
+
 
   # Used to set taggable symbol in tag
   def tagging_symbol

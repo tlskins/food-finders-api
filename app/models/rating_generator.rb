@@ -132,12 +132,7 @@ class RatingGenerator
       rater: @rater,
       ratee: @ratee,
       rating_type: @rating_type,
-      rating_metrics: @rating_metrics,
-      embedded_rateable: to_embedded(@rateable),
-      embedded_rater: to_embedded(@rater),
-      embedded_ratee: to_embedded(@ratee),
-      embedded_rating_type: to_embedded(@rating_type),
-      embedded_rating_metrics: to_embedded(@rating_metrics)
+      rating_metrics: @rating_metrics
     )
     update_rating_aggregates
   end

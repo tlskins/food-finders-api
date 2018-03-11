@@ -58,9 +58,8 @@ class SocialEntryGenerator
   def create_social_entry(params)
     @social_entry = SocialEntry.create(params)
     return @social_entry unless @social_entry.valid?
+    @social_entry.generate_food_rating if @social_entry.tags.present?
     @social_entry.create_action
-    return if @social_entry.tags.empty?
-    @social_entry.generate_food_rating
     # categorize_tags
     # return unless all_rating_components_present
     # generator = RatingGenerator.new(

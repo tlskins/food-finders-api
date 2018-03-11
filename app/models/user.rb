@@ -125,12 +125,12 @@ class User
 
   def publish_draft_social_entry(text)
     generator = SocialEntryGenerator.new
-    generator.create_social_entry(text: text, user: self)
     draft_social_entry.update_attributes(
       text: '',
       tags: [],
       last_submit: Time.now
     )
+    generator.create_social_entry(text: text, user: self)
   end
 
   def relevant_newsfeed_ids

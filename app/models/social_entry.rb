@@ -32,13 +32,15 @@ class SocialEntry
   def metadata
     author_name = user.handle ? '@' + user.handle : user.full_name
     tag_attrs = tags.map(&:attributes)
+    food_rating_attributes = food_rating.embeddable_attributes if food_rating.present?
     { author_type: user.class.name,
       author_id: user.id,
       author_name: author_name,
       data_type: 'text',
       data: text,
       created_at: created_at,
-      tags: tag_attrs }
+      tags: tag_attrs,
+      food_rating: food_rating_attributes }
   end
 
   attr_accessor(

@@ -20,4 +20,22 @@ class FoodRating
     inverse_of: :ratings,
     index: true
   )
+
+  def get_embeddable_attributes(association)
+    return if association.nil? || association.tag.nil?
+    association.tag.embeddable_attributes
+  end
+
+  def get_many_embeddable_attributes(association)
+    return if association.empty?
+    association.select { |a| a.tag.present? }.map { |a| a.tag.embeddable_attributes }
+  end
+
+  def embeddable_attributes
+    { rater: get_embeddable_attributes(rater),
+      rateable: get_embeddable_attributes(rateable),
+      ratee: get_embeddable_attributes(ratee),
+      rating_type: get_embeddable_attributes(rating_type),
+      rating_metrics: get_many_embeddable_attributes(rating_metrics) }
+  end
 end
