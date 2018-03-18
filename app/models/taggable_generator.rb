@@ -2,7 +2,7 @@
 class TaggableGenerator
   include ActiveModel::Validations
 
-  attr_reader :taggable, :taggable_class, :hierarchy_tree
+  attr_reader :taggable, :parent_taggable, :taggable_class, :hierarchy_tree
 
   validates :taggable_class, :hierarchy_tree, presence: true
   validate :valid_taggable_class
@@ -34,11 +34,14 @@ class TaggableGenerator
 
   def create_taggable(params)
     return unless valid?
-    parent = @taggable_class.find_by(name: params[:parent])
-    params[:parent] = parent
-    @taggable = @taggable_class.create(params)
-    return @taggable unless @taggable.valid?
+    @taggable = @taggable_class.new(params)
     @taggable.calculate_ancestry
+    @taggable.save
+    @parent_taggable = @taggable.parent
+    return @taggable unless @taggable.valid?
+    if @taggable.parent.present? && @taggable.parent.tag.present?
+      @taggable.parent.tag.write_taggable_data
+    end
     @taggable.create_tag
     @hierarchy_tree.calculate_tree(@taggable_class)
     @taggable
@@ -48,6 +51,7 @@ class TaggableGenerator
     return unless @taggable_class.present?
     @taggable = @taggable_class.find_by(id: param)
     @taggable ||= @taggable_class.find_by(name: param)
+    @parent_taggable = @taggable.parent if @taggable.parent
     @taggable
   end
 
@@ -63,8 +67,10 @@ class TaggableGenerator
     return unless valid? && @taggable.present?
     @taggable.update(params) if params.present?
     return @taggable unless @taggable.valid?
+
     @taggable.calculate_ancestry
     @taggable.save
+    # update tag
     if @taggable.tag.present?
       if recreate_tags
         @taggable.tag.destroy
@@ -75,7 +81,16 @@ class TaggableGenerator
     else
       @taggable.create_tag
     end
+    # update parent tag
+    if params.keys.include?('parent_id')
+      @parent_taggable ||= @taggable_class.find_by(id: params['parent_id'])
+      if @parent_taggable.present? && @parent_taggable.tag.present?
+        @parent_taggable.tag.write_taggable_data
+      end
+    end
+    # update tree
     @hierarchy_tree.calculate_tree(@taggable_class) if build_tree
+    @taggable
   end
 
   def destroy_taggable

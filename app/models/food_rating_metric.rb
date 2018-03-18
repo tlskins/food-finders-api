@@ -20,7 +20,6 @@ class FoodRatingMetric
     index: true
   )
 
-
   # Used to set taggable symbol in tag
   def tagging_symbol
     '&'

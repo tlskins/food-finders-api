@@ -1,5 +1,5 @@
 class FoodRatingMetricsController < ApplicationController
-  before_action :set_food_rating_metric, only: [:show, :update, :destroy]
+  before_action :set_food_rating_metric, only: [:show, :destroy]
 
   # GET /food_rating_metrics
   def index
@@ -15,10 +15,11 @@ class FoodRatingMetricsController < ApplicationController
 
   # POST /food_rating_metrics
   def create
-    @food_rating_metric = FoodRatingMetric.new(food_rating_metric_params)
+    generator = TaggableGenerator.new(FoodRatingMetric)
 
-    if @food_rating_metric.save
-      render json: @food_rating_metric, status: :created, location: @food_rating_metric
+    @food_rating_metric = generator.create_taggable(food_rating_metric_params)
+    if @food_rating_metric.valid?
+      render json: @food_rating_metric
     else
       render json: @food_rating_metric.errors, status: :unprocessable_entity
     end
@@ -26,7 +27,18 @@ class FoodRatingMetricsController < ApplicationController
 
   # PATCH/PUT /food_rating_metrics/1
   def update
-    if @food_rating_metric.update(food_rating_metric_params)
+    generator = TaggableGenerator.new(FoodRatingMetric)
+
+    @food_rating_metric = generator.find_taggable(params[:id])
+    if @food_rating_metric.nil?
+      render(
+        json: { message: 'Taggable not found' },
+        status: :unprocessable_entity
+      )
+    end
+
+    @food_rating_metric = generator.update_taggable(food_rating_metric_params)
+    if @food_rating_metric.valid?
       render json: @food_rating_metric
     else
       render json: @food_rating_metric.errors, status: :unprocessable_entity
@@ -46,6 +58,11 @@ class FoodRatingMetricsController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def food_rating_metric_params
-      params.fetch(:food_rating_metric, {})
+      params.require(:food_rating_metric).permit(
+        :name,
+        :parent_id,
+        :description,
+        synonyms: []
+      )
     end
 end

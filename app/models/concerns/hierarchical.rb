@@ -8,7 +8,7 @@ module Hierarchical
     field :path, type: String
     field :depth, type: Integer
 
-    after_create :calculate_ancestry
+    # after_create :calculate_ancestry
 
     belongs_to(
       :parent,
@@ -27,7 +27,7 @@ module Hierarchical
 
     index({ depth: 1 }, background: true)
 
-    scope :roots, -> { where(depth: 0) }
+    scope :roots, -> { where(parent_id: nil) }
 
     def self.calculate_roots
       all.entries.each do |node|
@@ -46,11 +46,17 @@ module Hierarchical
   end
 
   def calculate_ancestry
-    return if parent.nil?
-    update_attributes(
-      path: parent.path + parent.name + '/',
-      depth: parent.depth + 1
-    )
+    if parent.present?
+      update_attributes(
+        path: parent.path + parent.name + '/',
+        depth: parent.depth + 1
+      )
+    else
+      update_attributes(
+        path: '/',
+        depth: 1
+      )
+    end
   end
 
   def tree
@@ -108,7 +114,7 @@ module Hierarchical
               parent: nil,
               children: [] }
     attrs[:parent] = parent.parent_taggable_attributes if parent.present?
-    attrs[:children] = children.map { |c| c.child_taggable_attributes } if children.present?
+    attrs[:children] = children.map(&:child_taggable_attributes) if children.present?
     attrs
   end
 end
