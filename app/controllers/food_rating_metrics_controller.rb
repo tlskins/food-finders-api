@@ -1,5 +1,5 @@
 class FoodRatingMetricsController < ApplicationController
-  before_action :set_food_rating_metric, only: [:show, :destroy]
+  before_action :set_food_rating_metric, only: [:show]
 
   # GET /food_rating_metrics
   def index
@@ -47,7 +47,21 @@ class FoodRatingMetricsController < ApplicationController
 
   # DELETE /food_rating_metrics/1
   def destroy
-    @food_rating_metric.destroy
+    generator = TaggableGenerator.new(FoodRatingMetric)
+
+    @food_rating_metric = generator.find_taggable(params[:id])
+    if @food_rating_metric.nil?
+      render(
+        json: { message: 'Taggable not found' },
+        status: :unprocessable_entity
+      )
+    end
+
+    generator.destroy_taggable
+    render(
+      json: { message: 'Deleted successfully.' },
+      status: 200
+    )
   end
 
   private

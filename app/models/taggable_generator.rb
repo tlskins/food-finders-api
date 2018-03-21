@@ -39,10 +39,8 @@ class TaggableGenerator
     @taggable.save
     @parent_taggable = @taggable.parent
     return @taggable unless @taggable.valid?
-    if @taggable.parent.present? && @taggable.parent.tag.present?
-      @taggable.parent.tag.write_taggable_data
-    end
     @taggable.create_tag
+    update_parent_tag
     @hierarchy_tree.calculate_tree(@taggable_class)
     @taggable
   end
@@ -84,9 +82,7 @@ class TaggableGenerator
     # update parent tag
     if params.keys.include?('parent_id')
       @parent_taggable ||= @taggable_class.find_by(id: params['parent_id'])
-      if @parent_taggable.present? && @parent_taggable.tag.present?
-        @parent_taggable.tag.write_taggable_data
-      end
+      update_parent_tag
     end
     # update tree
     @hierarchy_tree.calculate_tree(@taggable_class) if build_tree
@@ -96,6 +92,14 @@ class TaggableGenerator
   def destroy_taggable
     return unless valid? && @taggable.present?
     @taggable.destroy
+    update_parent_tag
     @hierarchy_tree.calculate_tree(@taggable_class)
+  end
+
+  protected
+
+  def update_parent_tag
+    return if @parent_taggable.nil? || @parent_taggable.tag.nil?
+    @parent_taggable.tag.write_taggable_data
   end
 end
