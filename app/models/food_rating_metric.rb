@@ -20,6 +20,8 @@ class FoodRatingMetric
     index: true
   )
 
+  index({ name: 1 }, background: true, unique: true, drop_dups: true)
+
   # Used to set taggable symbol in tag
   def tagging_symbol
     '&'

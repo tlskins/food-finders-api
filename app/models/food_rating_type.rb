@@ -14,6 +14,8 @@ class FoodRatingType
     inverse_of: :rating_type
   )
 
+  index({ name: 1 }, background: true, unique: true, drop_dups: true)
+
   # Used to set taggable symbol in tag
   def tagging_symbol
     '#'

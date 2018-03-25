@@ -17,7 +17,7 @@ class SocialEntry
   validates :text, presence: true, length: { minimum: 3, maximum: 160 }
   validates :user, presence: true
 
-  after_save :parse_text
+  # after_save :parse_text
 
   ### Actionable Methods ###
 
@@ -51,7 +51,6 @@ class SocialEntry
     :rating_type, # rating type hashtag
     :rating_metrics, # rating metrics hashtag
   )
-
 
   # TODO : Move to a concern
 

@@ -6,6 +6,7 @@ module Parseable
     # TODO : Add back later / Include front end validation
     # validates :text, length: { maximum: 160 }
 
+    field :creatable_tags, type: Array, default: []
     embeds_many(
       :tags,
       as: :embeddable_tags,
@@ -59,5 +60,32 @@ module Parseable
       end
       reset_tag_parsing
     end
+  end
+
+  def create_tags
+    return if creatable_tags.empty?
+    # Create Entity Tags
+    creatable_tags.select { |t| t[0] == '@' }.each_with_index do |tag, index|
+      tag_id = tag.slice(1..-1)
+      # Check if tag already exists
+      db_entity = Entity.find_by(yelp_business_id: tag_id)
+      if db_entity.present?
+        delete_creatable_tag_at(index)
+        next
+      end
+      # Verify id from yelp and get latest business data
+      yelp_entity = Entity.yelp_businesses(tag_id)
+      next if yelp_entity['id'].nil?
+      new_entity = Entity.create_from_yelp(yelp_entity)
+      return new_entity if new_entity.invalid?
+      new_entity.reload
+      new_entity.create_tag
+      delete_creatable_tag_at(index)
+    end
+  end
+
+  def delete_creatable_tag_at(index)
+    creatable_tags.delete_at(index)
+    set(creatable_tags: creatable_tags)
   end
 end

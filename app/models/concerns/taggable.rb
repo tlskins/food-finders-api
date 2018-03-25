@@ -10,11 +10,13 @@ module Taggable
     validates(
       :name,
       presence: true,
-      uniqueness: true,
-      length: { minimum: 3, maximum: 20 }
+      # uniqueness: true,
+      # length: { minimum: 3, maximum: 20 }
+      length: { minimum: 3 }
     )
 
-    index({ name: 1 }, background: true, unique: true, drop_dups: true)
+    # Names are not unique, the handles are
+    # index({ name: 1 }, background: true, unique: true, drop_dups: true)
   end
 
   def tagging_symbol

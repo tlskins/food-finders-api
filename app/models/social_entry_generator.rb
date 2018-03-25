@@ -55,22 +55,22 @@ class SocialEntryGenerator
 
   # Generator functions
 
-  def create_social_entry(params)
-    @social_entry = SocialEntry.create(params)
+  # def new_social_entry(params)
+  #   @social_entry = SocialEntry.new(params)
+  #   return @social_entry unless @social_entry.valid?
+  #   @social_entry.create_tags if create_tags
+  #   @social_entry.generate_food_rating if @social_entry.tags.present?
+  #   @social_entry.create_action
+  # end
+
+  def create_social_entry(params, create_tags = false)
+    @social_entry = SocialEntry.new(params)
     return @social_entry unless @social_entry.valid?
+    @social_entry.create_tags if create_tags
+    @social_entry.save
+    return @social_entry unless @social_entry.valid?
+    @social_entry.parse_text
     @social_entry.generate_food_rating if @social_entry.tags.present?
     @social_entry.create_action
-    # categorize_tags
-    # return unless all_rating_components_present
-    # generator = RatingGenerator.new(
-    #   @rateable.class,
-    #   @rateable,
-    #   @raterable,
-    #   @rateeable,
-    #   @rating_typeable,
-    #   @rating_metrizables,
-    #   social_entry
-    # )
-    # generator.create_rating
   end
 end

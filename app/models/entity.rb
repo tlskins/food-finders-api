@@ -1,5 +1,20 @@
 require 'http'
 
+# Place holders for Yelp Fusion's API key. Grab it
+# from https://www.yelp.com/developers/v3/manage_app
+API_KEY = 'xe3EfcwF37qCK0zoQAQBJC--ZYkio-jrNwEqfWIGOza9TYN8rMdSxcSxs7Q2Tzazi_IEIuKnmOg8K8AqLd5YKzz9lPRF-vvQpKWadMn1pNU7aKwwNIvUanLewu02WnYx'.freeze
+
+# Constants, do not change these
+API_HOST = 'https://api.yelp.com'.freeze
+SEARCH_PATH = '/v3/businesses/search'.freeze
+# trailing / because we append the business id to the path
+BUSINESS_PATH = '/v3/businesses/'.freeze
+
+DEFAULT_BUSINESS_ID = 'yelp-san-francisco'.freeze
+DEFAULT_TERM = 'dinner'.freeze
+DEFAULT_LOCATION = 'Arlington, VA'.freeze
+SEARCH_LIMIT = 5
+
 # Entity Model - restaurants, chefs, derive from yelp fusion
 class Entity
   include Mongoid::Document
@@ -21,21 +36,6 @@ class Entity
   validates :yelp_business_id, uniqueness: true
 
   index({ yelp_business_id: 1 }, background: true, unique: true)
-
-  # Place holders for Yelp Fusion's API key. Grab it
-  # from https://www.yelp.com/developers/v3/manage_app
-  API_KEY = 'xe3EfcwF37qCK0zoQAQBJC--ZYkio-jrNwEqfWIGOza9TYN8rMdSxcSxs7Q2Tzazi_IEIuKnmOg8K8AqLd5YKzz9lPRF-vvQpKWadMn1pNU7aKwwNIvUanLewu02WnYx'.freeze
-
-  # Constants, do not change these
-  API_HOST = 'https://api.yelp.com'.freeze
-  SEARCH_PATH = '/v3/businesses/search'.freeze
-  # trailing / because we append the business id to the path
-  BUSINESS_PATH = '/v3/businesses/'.freeze
-
-  DEFAULT_BUSINESS_ID = 'yelp-san-francisco'.freeze
-  DEFAULT_TERM = 'dinner'.freeze
-  DEFAULT_LOCATION = 'Arlington, VA'.freeze
-  SEARCH_LIMIT = 5
 
   def self.yelp_businesses_search(term)
     url = "#{API_HOST}#{SEARCH_PATH}"
@@ -66,9 +66,12 @@ class Entity
     return yelp_business[:id] if yelp_business.present?
   end
 
-  def yelp_business=(params)
-    super(params)
-    update_yelp_business_data
+  def self.create_from_yelp(yelp_business_hash)
+    entity = Entity.new(yelp_business: yelp_business_hash)
+    entity.update_yelp_business_data
+    return entity if entity.invalid?
+    entity.save
+    entity
   end
 
   def embeddable_attributes
@@ -78,16 +81,9 @@ class Entity
       created_at: created_at }
   end
 
-  protected
-
   def update_yelp_business_data
-    if yelp_business.present?
-      self.name = yelp_business[:name]
-      self.yelp_business_id = yelp_business[:id]
-    else
-      # If removing a business relation only delete the business_id,
-      # name should stay the same
-      self.yelp_business_id = ''
-    end
+    return if yelp_business.nil?
+    self.name = yelp_business['name']
+    self.yelp_business_id = yelp_business['id']
   end
 end

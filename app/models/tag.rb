@@ -22,7 +22,8 @@ class Tag
   validates(
     :handle,
     presence: true,
-    length: { minimum: 3, maximum: 20 },
+    # length: { minimum: 3, maximum: 20 },
+    length: { minimum: 3 },
     uniqueness: { scope: :symbol, message: 'Tag already exists' }
   )
   validates(

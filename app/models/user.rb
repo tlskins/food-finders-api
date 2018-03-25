@@ -80,6 +80,8 @@ class User
   validates :first_name, presence: true
   validates :last_name, presence: true
 
+  index({ name: 1 }, background: true, unique: true, drop_dups: true)
+
   def full_name
     [first_name, last_name].join(' ')
   end
@@ -123,14 +125,14 @@ class User
     handlefy(name)
   end
 
-  def publish_draft_social_entry(text)
+  def publish_draft_social_entry(text, creatable_tags)
     generator = SocialEntryGenerator.new
-    draft_social_entry.update_attributes(
-      text: '',
-      tags: [],
-      last_submit: Time.now
+    generator.create_social_entry(
+      { text: text,
+        creatable_tags: creatable_tags,
+        user: self }, true
     )
-    generator.create_social_entry(text: text, user: self)
+    draft_social_entry.submitted
   end
 
   def relevant_newsfeed_ids
