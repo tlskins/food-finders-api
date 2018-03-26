@@ -111,7 +111,7 @@ class UsersController < ApplicationController
   # Only allow a trusted parameter "white list" through.
   def user_params
     params.require(:user).permit(
-      draft_social_entry: [:text, creatable_tags: []]
+      draft_social_entry: [:text, { creatable_tags: [:symbol, :handle, :taggable_type] } ]
     )
   end
 end

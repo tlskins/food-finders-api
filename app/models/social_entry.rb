@@ -17,8 +17,6 @@ class SocialEntry
   validates :text, presence: true, length: { minimum: 3, maximum: 160 }
   validates :user, presence: true
 
-  # after_save :parse_text
-
   ### Actionable Methods ###
 
   def actor

@@ -65,16 +65,16 @@ module Parseable
   def create_tags
     return if creatable_tags.empty?
     # Create Entity Tags
-    creatable_tags.select { |t| t[0] == '@' }.each_with_index do |tag, index|
-      tag_id = tag.slice(1..-1)
+    entity_tags = creatable_tags.select { |t| t.taggable_type === 'Entity' }
+    entity_tags.each_with_index do |tag, index|
       # Check if tag already exists
-      db_entity = Entity.find_by(yelp_business_id: tag_id)
+      db_entity = Entity.find_by(yelp_business_id: tag.handle)
       if db_entity.present?
         delete_creatable_tag_at(index)
         next
       end
       # Verify id from yelp and get latest business data
-      yelp_entity = Entity.yelp_businesses(tag_id)
+      yelp_entity = Entity.yelp_businesses(tag.handle)
       next if yelp_entity['id'].nil?
       new_entity = Entity.create_from_yelp(yelp_entity)
       return new_entity if new_entity.invalid?
@@ -87,5 +87,14 @@ module Parseable
   def delete_creatable_tag_at(index)
     creatable_tags.delete_at(index)
     set(creatable_tags: creatable_tags)
+  end
+
+  def validate_creatable_tags
+    return if creatable_tags.nil? || creatable_tags.empty?
+    unique_tags = creatable_tags.uniq { |t| t['symbol'] + t['handle'] }
+    valid_tags = unique_tags.select do |tag|
+      text.match?(tag['symbol'] + tag['handle'])
+    end
+    set(creatable_tags: valid_tags)
   end
 end
