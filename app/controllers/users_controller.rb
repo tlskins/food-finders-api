@@ -65,7 +65,7 @@ class UsersController < ApplicationController
 
   # POST /users/1/publish_draft_social_entry
   def publish_draft_social_entry
-    if @user.publish_draft_social_entry(params[:text])
+    if @user.publish_draft_social_entry(params[:text], params[:creatable_tags])
       @user.reload
       render json: @user
     else
@@ -110,6 +110,8 @@ class UsersController < ApplicationController
 
   # Only allow a trusted parameter "white list" through.
   def user_params
-    params.require(:user).permit(draft_social_entry: :text)
+    params.require(:user).permit(
+      draft_social_entry: [:text, { creatable_tags: [:symbol, :handle, :taggable_type] } ]
+    )
   end
 end

@@ -11,8 +11,15 @@ Rails.application.routes.draw do
     put 'update_relationship', on: :member
     post 'publish_draft_social_entry', on: :member
   end
-  resources :tags
-  resources :entities
+  resources :hierarchy_trees, only: :index
+  resources :tags do
+    get 'all_roots', on: :collection
+  end
+  resources :entities do
+    get 'yelp_businesses_search', on: :collection
+    get 'yelp_businesses', on: :collection
+  end
+  resources :food_rating_metrics
+  resources :food_rating_types
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
-  get 'yelp_search', to: 'yelp#search'
 end

@@ -44,6 +44,18 @@ class EntitiesController < ApplicationController
     @entity.destroy
   end
 
+  # GET /entities/yelp_businesses_search
+  def yelp_businesses_search
+    term = params['term']
+    render json: Entity.yelp_businesses_search(term)
+  end
+
+  # GET /entities/yelp_businesses
+  def yelp_businesses
+    id = params['id']
+    render json: Entity.yelp_businesses(id)
+  end
+
   private
 
   # Use callbacks to share common setup or constraints between actions.

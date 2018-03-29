@@ -3,18 +3,17 @@ class Food
   include Mongoid::Document
   include Mongoid::Timestamps::Created
   include Taggable
+  include Rateable
 
-  # field :vote_totals, type: Array
-  #
-  # def calculate_vote_totals
-  #   vote_totals = votes.collection.aggregate(
-  #     [{ :$group =>
-  #         { '_id' =>
-  #           { entity_name: '$entity_name', hashtag_name: '$hashtag_name' },
-  #           'count' => { :$sum => 1 } } }]
-  #   ).entries
-  #   update_attribute(:vote_totals, vote_totals)
-  # end
+  # attr_accessor :rating_class
+
+  has_many(
+    :ratings,
+    class_name: 'FoodRating',
+    inverse_of: :rateable
+  )
+
+  index({ name: 1 }, background: true, unique: true, drop_dups: true)
 
   # Used to set taggable symbol in tag
   def tagging_symbol
@@ -24,5 +23,9 @@ class Food
   # Used to set a unique public tag identifier
   def tagging_raw_handle
     handlefy(name)
+  end
+
+  def self.rating_class
+    FoodRating
   end
 end

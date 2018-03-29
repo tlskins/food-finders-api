@@ -2,28 +2,42 @@
 class TagsController < ApplicationController
   before_action :set_tag, only: %i[show update destroy]
 
-  def find_by_symbol(tags, symbol)
-    parsed_symbol = symbol == '%23' ? '#' : symbol
-    tags.where(symbol: parsed_symbol)
-  end
+  # GET /all_roots
+  def all_roots
+    @all_roots = { '@' => {}, '#' => {}, '^' => {}, '&' => {} }
+    FoodRatingType.roots.select { |r| r.tag.present? }.map(&:tag).each do |tag|
+      @all_roots['#'][tag.handle] = tag
+      @all_roots['#']['roots'] ||= []
+      @all_roots['#']['roots'] << tag
+    end
+    FoodRatingMetric.roots.select { |r| r.tag.present? }.map(&:tag).each do |tag|
+      @all_roots['&'][tag.handle] = tag
+      @all_roots['&']['roots'] ||= []
+      @all_roots['&']['roots'] << tag
+    end
 
-  def find_by_text(tags, text)
-    text_regex = Regexp.new(text, Regexp::IGNORECASE)
-    tags.where(
-      :$or => [
-        { name: text_regex },
-        { handle: text_regex }
-      ]
-    )
+    render json: @all_roots
   end
 
   # GET /tags
   def index
     @tags = Tag.all
 
-    @tags = find_by_symbol(@tags, params[:symbol]) if params[:symbol].present?
+    @tags = @tags.find_by_symbol(params[:symbol]) if params[:symbol].present?
 
-    @tags = find_by_text(@tags, params[:text]) if params[:text].present?
+    @tags = @tags.find_by_text(params[:text]) if params[:text].present?
+
+    @tags = @tags.find_by_path(params[:path]) if params[:path].present?
+
+    @tags = @tags.find_by_handles(params[:handles]) if params[:handles].present?
+
+    page = (params[:page] || 1).to_i
+    results_per_page = (params[:results_per_page] || 5).to_i
+
+    start_index = (page - 1) * results_per_page
+    end_index = start_index + results_per_page - 1
+
+    @tags = @tags.entries[start_index..end_index]
 
     render json: @tags
   end

@@ -1,8 +1,10 @@
+# User class
 class User
   include Mongoid::Document
   include Mongoid::Timestamps
   include Mongoid::Attributes::Dynamic
   include Taggable
+  include Raterable
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
@@ -44,6 +46,11 @@ class User
   field :followers_count, type: Integer, default: 0
   field :following_count, type: Integer, default: 0
 
+  has_many(
+    :ratings,
+    class_name: 'FoodRating',
+    inverse_of: :rater
+  )
   has_many :actions, as: :actor
   has_many :newsfeed_items
   belongs_to(
@@ -72,6 +79,8 @@ class User
   # TODO : name validitions on special chars, spaces
   validates :first_name, presence: true
   validates :last_name, presence: true
+
+  index({ name: 1 }, background: true, unique: true, drop_dups: true)
 
   def full_name
     [first_name, last_name].join(' ')
@@ -116,14 +125,14 @@ class User
     handlefy(name)
   end
 
-  def publish_draft_social_entry(text)
-    social_entry = social_entries.create(text: text)
-    social_entry.create_action
-    draft_social_entry.update_attributes(
-      text: '',
-      tags: [],
-      last_submit: Time.now
+  def publish_draft_social_entry(text, creatable_tags)
+    generator = SocialEntryGenerator.new
+    generator.create_social_entry(
+      { text: text,
+        creatable_tags: creatable_tags,
+        user: self }, true
     )
+    draft_social_entry.submitted
   end
 
   def relevant_newsfeed_ids
@@ -147,5 +156,15 @@ class User
       actions = actions.where(:created_at.gt => created_after)
     end
     actions.order_by(conducted_at: 'desc')
+  end
+
+  def embeddable_attributes
+    { _id: _id,
+      name: name,
+      first_name: first_name,
+      last_name: last_name,
+      created_at: created_at,
+      followers_count: followers_count,
+      following_count: following_count }
   end
 end

@@ -9,8 +9,15 @@ class EmbeddedSocialEntry
 
   embedded_in :embeddable_social_entry, polymorphic: true
 
-  def reset_text
-    update_attributes(text: '', tags: [])
+  before_validation :validate_creatable_tags
+
+  def submitted
+    update_attributes(
+      text: '',
+      tags: [],
+      creatable_tags: [],
+      last_submit: Time.now
+    )
   end
 
   def text=(params)

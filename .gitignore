@@ -21,3 +21,4 @@
 .powenv
 config/mongoid.yml
 config/secrets.yml
+/dump
