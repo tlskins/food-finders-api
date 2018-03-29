@@ -40,7 +40,13 @@ module FoodFindersApi
     config.middleware.insert_before 0, Rack::Cors do
       allow do
         # origins 'localhost:3000'
-        origins 'localhost:3000', 'http://foodbuddies.heregorun.com:2000'
+        origins(
+          'localhost:3000',
+          'localhost:8080',
+          'http://foodbuddies.heregorun.com:2000',
+          'http://foodbuddies.heregorun.com:8080',
+          'http://foodbuddies.heregorun.com:443'
+        )
 
         resource '*',
           headers: :any,
