@@ -65,11 +65,15 @@ class UsersController < ApplicationController
 
   # POST /users/1/publish_draft_social_entry
   def publish_draft_social_entry
-    if @user.publish_draft_social_entry(params[:text], params[:creatable_tags])
+    @social_entry = @user.publish_draft_social_entry(
+      draft_social_entry_params[:text],
+      draft_social_entry_params.to_h[:creatable_tags]
+    )
+    if @social_entry.valid?
       @user.reload
       render json: @user
     else
-      render json: @user.errors, status: :unprocessable_entity
+      render json: @social_entry.errors, status: :unprocessable_entity
     end
   end
 
@@ -108,10 +112,30 @@ class UsersController < ApplicationController
     @user = User.find(params[:id])
   end
 
-  # Only allow a trusted parameter "white list" through.
+  def draft_social_entry_params
+    params.permit(:text, creatable_tags: [
+                    :name,
+                    :symbol,
+                    :handle,
+                    :taggable_type,
+                    taggable_object: [
+                      :description,
+                      :name,
+                      :handle,
+                      synonyms: []
+                    ]
+                  ])
+  end
+
   def user_params
     params.require(:user).permit(
-      draft_social_entry: [:text, { creatable_tags: [:symbol, :handle, :taggable_type] } ]
+      draft_social_entry: [:text, { creatable_tags: [
+        :name,
+        :symbol,
+        :handle,
+        :taggable_type,
+        taggable_object: [:description, :name, :handle, synonyms: []]
+      ] }]
     )
   end
 end

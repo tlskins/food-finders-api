@@ -44,5 +44,6 @@ class SocialEntryGenerator
     @social_entry.parse_text
     @social_entry.generate_food_rating if @social_entry.tags.present?
     @social_entry.create_action
+    @social_entry
   end
 end

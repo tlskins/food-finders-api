@@ -34,6 +34,7 @@ module Parseable
     @tag_located = false
   end
 
+  # TODO: Refactor and support tags that end with a punctuation
   def parse_text
     # Remove existing tag data
     set(tags: [])
@@ -65,21 +66,35 @@ module Parseable
   def create_tags
     return if creatable_tags.empty?
     # Create Entity Tags
-    entity_tags = creatable_tags.select { |t| t.taggable_type === 'Entity' }
+    entity_tags = creatable_tags.select { |t| t[:taggable_type] == 'Entity' }
     entity_tags.each_with_index do |tag, index|
       # Check if tag already exists
-      db_entity = Entity.find_by(yelp_business_id: tag.handle)
+      db_entity = Entity.find_by(yelp_business_id: tag[:handle])
       if db_entity.present?
         delete_creatable_tag_at(index)
         next
       end
       # Verify id from yelp and get latest business data
-      yelp_entity = Entity.yelp_businesses(tag.handle)
-      next if yelp_entity['id'].nil?
+      yelp_entity = Entity.yelp_businesses(tag[:handle])
+      next if yelp_entity[:id].nil?
       new_entity = Entity.create_from_yelp(yelp_entity)
       return new_entity if new_entity.invalid?
       new_entity.reload
       new_entity.create_tag
+      delete_creatable_tag_at(index)
+    end
+    # Create Food Tags
+    food_tags = creatable_tags.select { |t| t[:taggable_type] == 'Food' }
+    food_tags.each_with_index do |tag, index|
+      # Check if tag already exists
+      db_entity = Tag.find_by(taggable_type: 'Food', handle: tag[:handle])
+      if db_entity.present?
+        delete_creatable_tag_at(index)
+        next
+      end
+      new_food = Food.new(tag[:taggable_object])
+      return new_food if new_food.invalid?
+      new_food.create_tag
       delete_creatable_tag_at(index)
     end
   end
@@ -91,9 +106,10 @@ module Parseable
 
   def validate_creatable_tags
     return if creatable_tags.nil? || creatable_tags.empty?
-    unique_tags = creatable_tags.uniq { |t| t['symbol'] + t['handle'] }
+    unique_tags = creatable_tags.uniq { |t| t[:symbol] + t[:handle] }
     valid_tags = unique_tags.select do |tag|
-      text.match?(tag['symbol'] + tag['handle'])
+      match_text = '\\' + tag[:symbol] + tag[:handle]
+      Regexp.new(match_text).match(text)
     end
     set(creatable_tags: valid_tags)
   end

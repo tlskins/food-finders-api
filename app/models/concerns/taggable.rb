@@ -34,6 +34,7 @@ module Taggable
   end
 
   def handlefy(target)
-    target.delete(' ')
+    return if target.nil?
+    target.downcase.tr(' ', '-')
   end
 end

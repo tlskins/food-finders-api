@@ -127,12 +127,13 @@ class User
 
   def publish_draft_social_entry(text, creatable_tags)
     generator = SocialEntryGenerator.new
-    generator.create_social_entry(
+    social_entry = generator.create_social_entry(
       { text: text,
         creatable_tags: creatable_tags,
         user: self }, true
     )
     draft_social_entry.submitted
+    social_entry
   end
 
   def relevant_newsfeed_ids
