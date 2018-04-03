@@ -85,7 +85,7 @@ class Tag
 
   def self.clean_handle(raw_handle)
     return if raw_handle.nil? || raw_handle.class.name != 'String'
-    raw_handle.gsub(/[ ]/, '_').gsub(/['@#^*()`]/, '')
+    raw_handle.downcase.tr(' ', '-').gsub(/['@#^*()`]/, '')
   end
 
   def write_taggable_data

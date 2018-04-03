@@ -67,34 +67,43 @@ module Parseable
     return if creatable_tags.empty?
     # Create Entity Tags
     entity_tags = creatable_tags.select { |t| t[:taggable_type] == 'Entity' }
+    Rails.logger.debug 'Parseable create_tags entity_tags = ' + entity_tags.inspect
     entity_tags.each_with_index do |tag, index|
+      Rails.logger.debug 'Parseable create_tags tag = ' + tag.inspect
       # Check if tag already exists
       db_entity = Entity.find_by(yelp_business_id: tag[:handle])
+      Rails.logger.debug 'Parseable create_tags db_entity = ' + db_entity.inspect
       if db_entity.present?
         delete_creatable_tag_at(index)
         next
       end
       # Verify id from yelp and get latest business data
       yelp_entity = Entity.yelp_businesses(tag[:handle])
-      next if yelp_entity[:id].nil?
+      Rails.logger.debug 'Parseable create_tags yelp_entity = ' + yelp_entity.inspect
+      next if yelp_entity['id'].nil?
       new_entity = Entity.create_from_yelp(yelp_entity)
+      Rails.logger.debug 'Parseable create_tags new_entity = ' + new_entity.inspect
       return new_entity if new_entity.invalid?
-      new_entity.reload
-      new_entity.create_tag
+      new_tag = new_entity.create_tag
+      Rails.logger.debug 'Parseable create_tags new_tag = ' + new_tag.inspect
       delete_creatable_tag_at(index)
     end
     # Create Food Tags
     food_tags = creatable_tags.select { |t| t[:taggable_type] == 'Food' }
+    Rails.logger.debug 'Parseable create_tags food_tags = ' + food_tags.inspect
     food_tags.each_with_index do |tag, index|
       # Check if tag already exists
       db_entity = Tag.find_by(taggable_type: 'Food', handle: tag[:handle])
+      Rails.logger.debug 'Parseable create_tags db_entity = ' + db_entity.inspect
       if db_entity.present?
         delete_creatable_tag_at(index)
         next
       end
       new_food = Food.new(tag[:taggable_object])
+      Rails.logger.debug 'Parseable create_tags new_food = ' + new_food.inspect
       return new_food if new_food.invalid?
-      new_food.create_tag
+      new_tag = new_food.create_tag
+      Rails.logger.debug 'Parseable create_tags new_tag = ' + new_tag.inspect
       delete_creatable_tag_at(index)
     end
   end

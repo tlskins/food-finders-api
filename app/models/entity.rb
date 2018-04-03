@@ -61,9 +61,9 @@ class Entity
   def tagging_raw_handle
     # If user has picked a to handle to use return that
     return handle if handle.present?
-
     # If a yelp business is set use its id as the tagging handle
-    return yelp_business[:id] if yelp_business.present?
+    return yelp_business['id'] if yelp_business.present?
+    name
   end
 
   def self.create_from_yelp(yelp_business_hash)
