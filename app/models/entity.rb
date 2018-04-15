@@ -81,9 +81,9 @@ class Entity
       created_at: created_at }
   end
 
-  def taggable_attributes
-    yelp_business
-  end
+  # def taggable_attributes
+  #   yelp_business
+  # end
 
   def update_yelp_business_data
     return if yelp_business.nil?
