@@ -113,7 +113,7 @@ class UsersController < ApplicationController
   end
 
   def draft_social_entry_params
-    params.permit(:text, creatable_tags: [
+    params.permit(:text, :parent_social_entry_id, creatable_tags: [
                     :name,
                     :symbol,
                     :handle,
@@ -129,7 +129,7 @@ class UsersController < ApplicationController
 
   def user_params
     params.require(:user).permit(
-      draft_social_entry: [:text, { creatable_tags: [
+      draft_social_entry: [:text, :parent_social_entry_id, { creatable_tags: [
         :name,
         :symbol,
         :handle,

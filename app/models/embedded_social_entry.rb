@@ -6,6 +6,7 @@ class EmbeddedSocialEntry
 
   field :text, type: String, default: ''
   field :last_submit, type: Time
+  field :parent_social_entry_id, type: BSON::ObjectId
 
   embedded_in :embeddable_social_entry, polymorphic: true
 

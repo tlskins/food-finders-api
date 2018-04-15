@@ -12,7 +12,7 @@ class SocialEntry
 
   # TODO : If use recursive embeds prevent ratings being associated
   # to create ratings
-  # recursively_embeds_many
+  recursively_embeds_many
 
   validates :text, presence: true, length: { minimum: 3, maximum: 160 }
   validates :user, presence: true
