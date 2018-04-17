@@ -24,6 +24,8 @@ module Hierarchical
 
     validates :description, :path, :depth, presence: true
 
+    after_save :calculate_ancestry
+
     index({ depth: 1 }, background: true)
 
     scope :roots, -> { where(parent_id: nil) }
@@ -46,7 +48,7 @@ module Hierarchical
   def calculate_ancestry
     parent_path = parent ? parent.path + parent.name : ''
     parent_depth = parent ? parent.depth : 0
-    update(
+    set(
       path: parent_path + '/',
       depth: parent_depth + 1
     )
@@ -66,11 +68,13 @@ module Hierarchical
       children: children_handles }
   end
 
+  private
+
   def parent_handle
-    parent && parent.handle
+    parent && parent.to_s
   end
 
   def children_handles
-    children.map(&:handle)
+    children.map(&:to_s)
   end
 end

@@ -30,6 +30,11 @@ module Taggable
     tagging_raw_handle.downcase.tr(' ', '-').gsub(/['@#^*()`]/, '')
   end
 
+  def to_s
+    return unless tagging_symbol && tagging_raw_handle
+    tagging_symbol + handle
+  end
+
   # Used to set taggable symbol in tag
   def tagging_name
     name

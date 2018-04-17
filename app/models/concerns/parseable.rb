@@ -22,89 +22,27 @@ module Parseable
     end
   end
 
-  TAG_DELIMITER = ' '.freeze
   TAG_KEYS = Tag.reserved_symbols.freeze
 
-  attr_accessor :tag, :tag_start, :tag_end, :tag_located
-
-  def reset_tag_parsing
-    @tag = ''
-    @tag_start = nil
-    @tag_end = nil
-    @tag_located = false
-  end
-
-  # TODO: Refactor and support tags that end with a punctuation
   def parse_text
     # Remove existing tag data
     set(tags: [])
-    return if text.empty?
 
-    reset_tag_parsing
-    text_arr = text.split('')
-    text_arr.each_with_index.map do |char, index|
-      if TAG_KEYS.include?(char) || @tag_located
-        if char != TAG_DELIMITER
-          @tag << char
-          @tag_start = index if @tag_start.nil?
-        end
-        @tag_located = !(char == TAG_DELIMITER || index == text_arr.length - 1)
-      end
-      next unless !@tag_located && @tag.present?
-      @tag_found = Tag.find_by_tag(@tag)
-      if @tag_found.present?
-        @tag_end = index == text_arr.length - 1 ? index + 1 : index
-        attrs = @tag_found.embeddable_attributes
-        attrs[:tag_start] = @tag_start
-        attrs[:tag_end] = @tag_end
-        tags.create(attrs)
-      end
-      reset_tag_parsing
+    valid_tagged_words(text).each do |valid_tag|
+      attrs = valid_tag[:tag].embeddable_attributes
+      attrs[:tag_start] = valid_tag[:start]
+      attrs[:tag_end] = valid_tag[:end]
+      tags.create(attrs)
     end
   end
 
   def create_tags
     return if creatable_tags.empty?
-    # Create Entity Tags
-    entity_tags = creatable_tags.select { |t| t[:taggable_type] == 'Entity' }
-    Rails.logger.debug 'Parseable create_tags entity_tags = ' + entity_tags.inspect
-    entity_tags.each_with_index do |tag, index|
-      Rails.logger.debug 'Parseable create_tags tag = ' + tag.inspect
-      # Check if tag already exists
-      db_entity = Entity.find_by(yelp_business_id: tag[:handle])
-      Rails.logger.debug 'Parseable create_tags db_entity = ' + db_entity.inspect
-      if db_entity.present?
-        delete_creatable_tag_at(index)
-        next
-      end
-      # Verify id from yelp and get latest business data
-      yelp_entity = Entity.yelp_businesses(tag[:handle])
-      Rails.logger.debug 'Parseable create_tags yelp_entity = ' + yelp_entity.inspect
-      next if yelp_entity['id'].nil?
-      new_entity = Entity.create_from_yelp(yelp_entity)
-      Rails.logger.debug 'Parseable create_tags new_entity = ' + new_entity.inspect
-      return new_entity if new_entity.invalid?
-      new_tag = new_entity.create_tag
-      Rails.logger.debug 'Parseable create_tags new_tag = ' + new_tag.inspect
-      delete_creatable_tag_at(index)
+    create_tags_type(creatable_entity_tags) do |tag|
+      create_entity_tag(tag)
     end
-    # Create Food Tags
-    food_tags = creatable_tags.select { |t| t[:taggable_type] == 'Food' }
-    Rails.logger.debug 'Parseable create_tags food_tags = ' + food_tags.inspect
-    food_tags.each_with_index do |tag, index|
-      # Check if tag already exists
-      db_entity = Tag.find_by(taggable_type: 'Food', handle: tag[:handle])
-      Rails.logger.debug 'Parseable create_tags db_entity = ' + db_entity.inspect
-      if db_entity.present?
-        delete_creatable_tag_at(index)
-        next
-      end
-      new_food = Food.new(tag[:taggable_object])
-      Rails.logger.debug 'Parseable create_tags new_food = ' + new_food.inspect
-      return new_food if new_food.invalid?
-      new_tag = new_food.create_tag
-      Rails.logger.debug 'Parseable create_tags new_tag = ' + new_tag.inspect
-      delete_creatable_tag_at(index)
+    create_tags_type(creatable_food_tags) do |tag|
+      create_food_tag(tag)
     end
   end
 
@@ -115,11 +53,91 @@ module Parseable
 
   def validate_creatable_tags
     return if creatable_tags.nil? || creatable_tags.empty?
-    unique_tags = creatable_tags.uniq { |t| t[:symbol] + t[:handle] }
-    valid_tags = unique_tags.select do |tag|
+    valid_tags = contained_creatable_tags(unique_creatable_tags(creatable_tags))
+    set(creatable_tags: valid_tags)
+  end
+
+  private
+
+  # Tags
+
+  def word_indices_array(text)
+    enum = text.enum_for(:scan, /[^ \.,]+/)
+    enum.map do |_|
+      word_start = Regexp.last_match.begin(0)
+      word_length = Regexp.last_match(0).length
+      [word_start, word_start + word_length]
+    end
+  end
+
+  def words(text)
+    indices_array = word_indices_array(text)
+    indices_array.map do |array|
+      { text: text.slice(array[0], array[1] - array[0]),
+        start: array[0],
+        end: array[1] }
+    end
+  end
+
+  def tagged_words(text)
+    words(text).select { |w| TAG_KEYS.include?(w[:text][0]) }
+  end
+
+  def valid_tagged_words(text)
+    tagged_words(text).map do |word_hash|
+      word_hash[:tag] = Tag.find_by_tag(word_hash[:text])
+      word_hash[:tag] && word_hash
+    end.select(&:present?)
+  end
+
+  # Creatable Tags
+
+  def unique_creatable_tags(creatable_tags)
+    creatable_tags.uniq { |t| t[:symbol] + t[:handle] }
+  end
+
+  def contained_creatable_tags(creatable_tags)
+    creatable_tags.select do |tag|
       match_text = '\\' + tag[:symbol] + tag[:handle]
       Regexp.new(match_text).match(text)
     end
-    set(creatable_tags: valid_tags)
+  end
+
+  def creatable_entity_tags(creatable_tags)
+    creatable_tags.select { |t| t[:taggable_type] == 'Entity' }
+  end
+
+  def creatable_food_tags(creatable_tags)
+    creatable_tags.select { |t| t[:taggable_type] == 'Food' }
+  end
+
+  def create_entity_tag(tag)
+    yelp_entity = Entity.yelp_businesses(tag[:handle])
+    return if yelp_entity['id'].nil?
+    new_entity = Entity.create_from_yelp(yelp_entity)
+    return if new_entity.invalid?
+    new_entity.create_tag
+  end
+
+  def create_food_tag(tag)
+    new_food = Food.new(tag[:taggable_object])
+    return if new_food.invalid?
+    new_food.create_tag
+  end
+
+  def entity_tag_exists(entity_handle)
+    Tag.find_by(taggable_type: 'Entity', handle: entity_handle)
+  end
+
+  def food_tag_exists(food_handle)
+    Tag.find_by(taggable_type: 'Food', handle: food_handle)
+  end
+
+  def create_tags_type(creatable_tags)
+    creatable_tags.each_with_index do |tag, index|
+      if entity_tag_exists(tag[:handle]) || yield(tag)
+        delete_creatable_tag_at(index)
+      end
+    end
   end
 end
