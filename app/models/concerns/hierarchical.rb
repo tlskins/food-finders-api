@@ -58,14 +58,11 @@ module Hierarchical
     HierarchyTree.find_by(class_name: self.class.name)
   end
 
-  def taggable_attributes
-    { _id: _id,
-      name: name,
-      description: description,
+  def local_taggable_attributes
+    { description: description,
       synonyms: synonyms,
       path: path,
       depth: depth,
-      created_at: created_at,
       parent: parent_handle,
       children: children_handles }
   end

@@ -60,7 +60,7 @@ class Entity
   # Used to set a unique public tag identifier
   def tagging_raw_handle
     # If a yelp business is set use its id as the tagging handle
-    return yelp_business['id'] if yelp_business.present?
+    return yelp_business['alias'] if yelp_business.present?
     name
   end
 

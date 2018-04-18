@@ -38,10 +38,10 @@ module Parseable
 
   def create_tags
     return if creatable_tags.empty?
-    create_tags_type(creatable_entity_tags) do |tag|
+    create_tags_type(creatable_entity_tags(creatable_tags)) do |tag|
       create_entity_tag(tag)
     end
-    create_tags_type(creatable_food_tags) do |tag|
+    create_tags_type(creatable_food_tags(creatable_tags)) do |tag|
       create_food_tag(tag)
     end
   end
@@ -57,7 +57,7 @@ module Parseable
     set(creatable_tags: valid_tags)
   end
 
-  private
+  # private
 
   # Tags
 

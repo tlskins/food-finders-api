@@ -43,8 +43,13 @@ module Taggable
 
   def taggable_attributes
     { _id: _id,
+      handle: handle,
       name: name,
-      created_at: created_at }
+      created_at: created_at }.merge(local_taggable_attributes)
+  end
+
+  def local_taggable_attributes
+    {}
   end
 
   private
