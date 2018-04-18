@@ -119,7 +119,7 @@ class User
 
   # Used to set a unique public tag identifier
   def tagging_raw_handle
-    handle || name
+    name
   end
 
   def publish_draft_social_entry(text, creatable_tags)

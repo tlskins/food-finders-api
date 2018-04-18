@@ -63,6 +63,8 @@ module Hierarchical
       name: name,
       description: description,
       synonyms: synonyms,
+      path: path,
+      depth: depth,
       created_at: created_at,
       parent: parent_handle,
       children: children_handles }

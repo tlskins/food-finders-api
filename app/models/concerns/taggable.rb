@@ -26,8 +26,9 @@ module Taggable
   end
 
   def handle
-    return unless tagging_raw_handle
-    tagging_raw_handle.downcase.tr(' ', '-').gsub(/['@#^*()`]/, '')
+    db_value = super
+    return db_value if db_value.present?
+    handlefy(tagging_raw_handle)
   end
 
   def to_s
@@ -43,8 +44,13 @@ module Taggable
   def taggable_attributes
     { _id: _id,
       name: name,
-      description: description,
-      synonyms: synonyms,
       created_at: created_at }
+  end
+
+  private
+
+  def handlefy(raw_handle)
+    return unless raw_handle.present?
+    raw_handle.downcase.tr(' ', '-').gsub(/['@#^*()`]/, '')
   end
 end
