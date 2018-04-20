@@ -13,6 +13,7 @@ class UsersController < ApplicationController
     ]
   )
 
+  # TODO - Move to users model
   def find_by_text(users, text)
     text_regex = Regexp.new(text, Regexp::IGNORECASE)
     users.where(
@@ -43,6 +44,9 @@ class UsersController < ApplicationController
     @user = User.new(user_params)
 
     if @user.save
+      # initialize draft social entry
+      @user.draft_social_entry
+      @user.reload
       render json: @user, status: :created, location: @user
     else
       render json: @user.errors, status: :unprocessable_entity
