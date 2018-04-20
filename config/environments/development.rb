@@ -29,17 +29,19 @@ Rails.application.configure do
     config.cache_store = :null_store
   end
 
-  config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+  config.action_mailer.default_url_options = {
+    host: 'localhost',
+    port: 3000,
+    from: ENV['mailer_from']
+  }
   config.action_mailer.perform_deliveries = true
   config.action_mailer.logger = ActiveSupport::TaggedLogging.new(
     Logger.new(File.join(Rails.root, 'log', 'test.log'))
   )
   config.action_mailer.delivery_method = :smtp
-
   config.action_mailer.smtp_settings = {
     user_name:      ENV['mailer_user_name'],
     password:       ENV['mailer_password'],
-    domain:         ENV['mailer_domain'],
     address:       ENV['mailer_address'],
     port:          ENV['mailer_port'],
     authentication: :plain,

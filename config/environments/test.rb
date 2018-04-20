@@ -40,11 +40,11 @@ Rails.application.configure do
   )
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    user_name:      'collab.mailer',
-    password:       'testing123456',
-    domain:         'localhost:3000',
-    address:       'smtp.gmail.com',
-    port:          '587',
+    user_name:      ENV['mailer_user_name'],
+    password:       ENV['mailer_password'],
+    domain:         ENV['mailer_domain'],
+    address:       ENV['mailer_address'],
+    port:          ENV['mailer_port'],
     authentication: :plain,
     enable_starttls_auto: true
   }
