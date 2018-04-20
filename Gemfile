@@ -1,12 +1,14 @@
 source 'https://rubygems.org'
 
 git_source(:github) do |repo_name|
-  repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?("/")
+  repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?('/')
   "https://github.com/#{repo_name}.git"
 end
 
 ruby '2.5.0'
+gem 'activemodel', require: 'active_model'
 gem 'devise'
+gem 'http'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 5.1.4'
 # Use sqlite3 as the database for Active Record
@@ -14,13 +16,10 @@ gem 'rails', '~> 5.1.4'
 gem 'mongoid', '~> 6.1.0'
 # Use Puma as the app server
 gem 'puma', '~> 3.7'
-gem 'http'
-gem 'rack-cors'
-gem "activemodel", require: "active_model"
 
 gem 'capistrano', '~> 3.7', '>= 3.7.1'
-gem 'capistrano-rails', '~> 1.2'
 gem 'capistrano-passenger', '~> 0.2.0'
+gem 'capistrano-rails', '~> 1.2'
 gem 'figaro'
 
 # Add this if you're using rbenv
@@ -41,9 +40,9 @@ gem 'rack-cors'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
-  gem 'rspec-rails', '~> 3.6'
+  gem 'byebug', platforms: %i[mri mingw x64_mingw]
   gem 'factory_girl_rails', '~> 4.8'
+  gem 'rspec-rails', '~> 3.6'
 end
 
 group :development do
@@ -54,7 +53,7 @@ group :development do
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
 gem 'sidekiq', '5.0.5'
 
