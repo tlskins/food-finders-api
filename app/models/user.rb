@@ -80,6 +80,8 @@ class User
   validates :first_name, presence: true
   validates :last_name, presence: true
 
+  after_create :create_draft_social_entry
+
   index({ name: 1 }, background: true, unique: true, drop_dups: true)
 
   def full_name

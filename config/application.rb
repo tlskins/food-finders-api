@@ -33,7 +33,9 @@ module FoodFindersApi
 
     # config.middleware.use ActionDispatch::Request
 
-    config.logger = ActiveSupport::TaggedLogging.new(Logger.new(File.join(Rails.root, 'log', 'test.log')))
+    config.logger = ActiveSupport::TaggedLogging.new(
+      Logger.new(File.join(Rails.root, 'log', 'test.log'))
+    )
 
     config.active_job.queue_adapter = :sidekiq
 

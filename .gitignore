@@ -22,3 +22,6 @@
 config/mongoid.yml
 config/secrets.yml
 /dump
+
+# Ignore application configuration
+/config/application.yml
