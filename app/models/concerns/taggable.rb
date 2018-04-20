@@ -14,18 +14,26 @@ module Taggable
       # length: { minimum: 3, maximum: 20 }
       length: { minimum: 3 }
     )
-
-    # Names are not unique, the handles are
-    # index({ name: 1 }, background: true, unique: true, drop_dups: true)
   end
 
   def tagging_symbol
-    raise 'tagging_symbol not implemented!'
+    raise 'tagging symbol not implemented!'
   end
 
   # Used to set a unique public tag identifier
   def tagging_raw_handle
-    raise 'tagging_raw_handle not implemented!'
+    raise 'tagging raw handle not implemented!'
+  end
+
+  def handle
+    db_value = super if respond_to? 'super'
+    return db_value if db_value.present?
+    handlefy(tagging_raw_handle)
+  end
+
+  def to_s
+    return unless tagging_symbol && tagging_raw_handle
+    tagging_symbol + handle
   end
 
   # Used to set taggable symbol in tag
@@ -33,8 +41,21 @@ module Taggable
     name
   end
 
-  def handlefy(target)
-    return if target.nil?
-    target.downcase.tr(' ', '-')
+  def taggable_attributes
+    { _id: _id,
+      handle: handle,
+      name: name,
+      created_at: created_at }.merge(local_taggable_attributes)
+  end
+
+  def local_taggable_attributes
+    {}
+  end
+
+  private
+
+  def handlefy(raw_handle)
+    return unless raw_handle.present?
+    raw_handle.downcase.tr(' ', '-').gsub(/['@#^*()`]/, '')
   end
 end

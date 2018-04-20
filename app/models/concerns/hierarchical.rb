@@ -1,14 +1,13 @@
 # Provides a heiarchical framework
 module Hierarchical
   extend ActiveSupport::Concern
+  include Taggable
 
   included do
     field :description, type: String
     field :synonyms, type: Array, default: []
     field :path, type: String
     field :depth, type: Integer
-
-    # after_create :calculate_ancestry
 
     belongs_to(
       :parent,
@@ -25,14 +24,15 @@ module Hierarchical
 
     validates :description, :path, :depth, presence: true
 
+    after_save :calculate_ancestry
+
     index({ depth: 1 }, background: true)
 
     scope :roots, -> { where(parent_id: nil) }
 
     def self.calculate_roots
-      all.entries.each do |node|
-        node.set_root if node.parent.nil?
-      end
+      found_roots = all.entries.select { |node| node.parent.nil? }
+      found_roots.each(&:calculate_ancestry)
     end
 
     def self.calculate_all_ancestry(targets = nil)
@@ -46,75 +46,52 @@ module Hierarchical
   end
 
   def calculate_ancestry
-    if parent.present?
-      update_attributes(
-        path: parent.path + parent.name + '/',
-        depth: parent.depth + 1
-      )
-    else
-      update_attributes(
-        path: '/',
-        depth: 1
-      )
-    end
+    parent_path = parent ? parent.path + parent.name : ''
+    parent_depth = parent ? parent.depth : 0
+    set(
+      path: parent_path + '/',
+      depth: parent_depth + 1
+    )
   end
 
   def tree
     HierarchyTree.find_by(class_name: self.class.name)
   end
 
-  def set_root
-    update_attributes(
-      path: '/',
-      depth: 0
-    )
+  def roots
+    self.class.roots.entries
   end
 
-  def child_taggable_attributes
-    if tag.present?
-      tag_handle = tag.handle
-      tag_symbol = tag.symbol
-      taggable_type = tag.taggable_type
-    end
-    { _id: _id,
-      name: name,
-      description: description,
-      tag_handle: tag_handle,
-      tag_symbol: tag_symbol,
-      taggable_type: taggable_type }
+  def local_taggable_attributes
+    { description: description,
+      synonyms: synonyms,
+      path: path,
+      depth: depth,
+      parent: parent_handle,
+      parent_generation: parent_generation,
+      children: children_handles }
   end
 
-  def parent_taggable_attributes
-    if tag.present?
-      tag_handle = tag.handle
-      tag_symbol = tag.symbol
-      taggable_type = tag.taggable_type
-    end
-    siblings = if parent.present?
-                 parent.children.reject { |c| c.id == id }
-               else
-                 self.class.roots.reject { |r| r.id == id }
-               end
-    siblings = siblings.map(&:tag).map(&:to_s) if siblings.present?
-    { _id: _id,
-      name: name,
-      description: description,
-      tag_handle: tag_handle,
-      tag_symbol: tag_symbol,
-      taggable_type: taggable_type,
-      siblings: siblings }
+  protected
+
+  def children_handles
+    children.map(&:to_s)
   end
 
-  def taggable_attributes
-    attrs = { _id: _id,
-              name: name,
-              description: description,
-              synonyms: synonyms,
-              created_at: created_at,
-              parent: nil,
-              children: [] }
-    attrs[:parent] = parent.parent_taggable_attributes if parent.present?
-    attrs[:children] = children.map(&:child_taggable_attributes) if children.present?
-    attrs
+  private
+
+  def parent_generation
+    return unless parent.present?
+    return root_handles if parent.depth == 1
+    parent.parent.children_handles
+  end
+
+  def root_handles
+    return unless roots.entries.present?
+    roots.entries.map(&:to_s)
+  end
+
+  def parent_handle
+    parent && parent.to_s
   end
 end

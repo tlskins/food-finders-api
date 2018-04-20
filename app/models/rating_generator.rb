@@ -44,13 +44,13 @@ class RatingGenerator
     target.class.included_modules.include?(RatingMetrizable)
   end
 
-  def to_embedded(target)
-    if target.class.name == 'Array'
-      target.map(&:embeddable_attributes)
-    else
-      target.present? ? target.embeddable_attributes : nil
-    end
-  end
+  # def to_embedded(target)
+  #   if target.class.name == 'Array'
+  #     target.map(&:embeddable_attributes)
+  #   else
+  #     target.present? ? target.embeddable_attributes : nil
+  #   end
+  # end
 
   # Validation functions
 

@@ -24,7 +24,7 @@ class Food
 
   # Used to set a unique public tag identifier
   def tagging_raw_handle
-    handle || name
+    name
   end
 
   def self.rating_class

@@ -1,7 +1,7 @@
 # Module for an object that can create a valid Action
 module Actionable
   extend ActiveSupport::Concern
-  extend ActiveModel::Callbacks
+  # extend ActiveModel::Callbacks
 
   included do
     has_one :action, as: :actionable

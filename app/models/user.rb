@@ -119,10 +119,7 @@ class User
 
   # Used to set a unique public tag identifier
   def tagging_raw_handle
-    # If unique handle is already chosen use that
-    return handle if handle.present?
-
-    handlefy(name)
+    name
   end
 
   def publish_draft_social_entry(text, creatable_tags)

@@ -3,7 +3,6 @@
 class FoodRatingMetric
   include Mongoid::Document
   include Mongoid::Timestamps::Created
-  include Taggable
   include RatingMetrizable
   include Hierarchical
 
@@ -29,7 +28,7 @@ class FoodRatingMetric
 
   # Used to set a unique public tag identifier
   def tagging_raw_handle
-    handlefy(name)
+    name
   end
 
   def embeddable_attributes

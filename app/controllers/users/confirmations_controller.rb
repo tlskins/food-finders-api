@@ -13,7 +13,6 @@ class Users::ConfirmationsController < Devise::ConfirmationsController
 
   # GET /resource/confirmation?confirmation_token=abcdef
   def show
-    Rails.logger.debug 'GET /resource/confirmation?confirmation_token= CALLED!, params[:confirmation_token] = ' + params[:confirmation_token].inspect
     self.resource = resource_class.confirm_by_token(params[:confirmation_token])
     yield resource if block_given?
 

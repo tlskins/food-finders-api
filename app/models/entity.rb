@@ -59,10 +59,8 @@ class Entity
 
   # Used to set a unique public tag identifier
   def tagging_raw_handle
-    # If user has picked a to handle to use return that
-    return handle if handle.present?
     # If a yelp business is set use its id as the tagging handle
-    return yelp_business['id'] if yelp_business.present?
+    return yelp_business[:alias] || yelp_business[:id] if yelp_business.present?
     name
   end
 
@@ -81,13 +79,13 @@ class Entity
       created_at: created_at }
   end
 
-  def taggable_attributes
-    yelp_business
+  def local_taggable_attributes
+    { yelp_business: yelp_business }
   end
 
   def update_yelp_business_data
     return if yelp_business.nil?
-    self.name = yelp_business['name']
-    self.yelp_business_id = yelp_business['id']
+    self.name = yelp_business[:name]
+    self.yelp_business_id = yelp_business[:alias]
   end
 end

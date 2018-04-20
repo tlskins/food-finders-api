@@ -4,7 +4,6 @@
 class FoodRatingType
   include Mongoid::Document
   include Mongoid::Timestamps::Created
-  include Taggable
   include RatingTypeable
   include Hierarchical
 
@@ -23,7 +22,7 @@ class FoodRatingType
 
   # Used to set a unique public tag identifier
   def tagging_raw_handle
-    handlefy(name)
+    name
   end
 
   def embeddable_attributes

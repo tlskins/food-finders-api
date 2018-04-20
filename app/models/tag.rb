@@ -83,27 +83,13 @@ class Tag
     end
   end
 
-  def self.clean_handle(raw_handle)
-    return if raw_handle.nil? || raw_handle.class.name != 'String'
-    raw_handle.downcase.tr(' ', '-').gsub(/['@#^*()`]/, '')
-  end
-
   def write_taggable_data
     return if taggable.nil?
-    if taggable.respond_to? 'taggable_attributes'
-      set(
-        handle: Tag.clean_handle(taggable.tagging_raw_handle),
-        name: taggable.tagging_name,
-        symbol: taggable.tagging_symbol,
-        # TODO : change taggable_attributes to hierarchal_attributes
-        embedded_taggable: taggable.taggable_attributes
-      )
-    else
-      set(
-        handle: Tag.clean_handle(taggable.tagging_raw_handle),
-        name: taggable.tagging_name,
-        symbol: taggable.tagging_symbol
-      )
-    end
+    set(
+      handle: taggable.handle,
+      name: taggable.tagging_name,
+      symbol: taggable.tagging_symbol,
+      embedded_taggable: taggable.taggable_attributes
+    )
   end
 end
