@@ -2,8 +2,6 @@ require 'http'
 
 # Place holders for Yelp Fusion's API key. Grab it
 # from https://www.yelp.com/developers/v3/manage_app
-API_KEY = 'xe3EfcwF37qCK0zoQAQBJC--ZYkio-jrNwEqfWIGOza9TYN8rMdSxcSxs7Q2Tzazi_IEIuKnmOg8K8AqLd5YKzz9lPRF-vvQpKWadMn1pNU7aKwwNIvUanLewu02WnYx'.freeze
-
 # Constants, do not change these
 API_HOST = 'https://api.yelp.com'.freeze
 SEARCH_PATH = '/v3/businesses/search'.freeze
@@ -44,12 +42,12 @@ class Entity
       location: DEFAULT_LOCATION,
       limit: SEARCH_LIMIT
     }
-    HTTP.auth("Bearer #{API_KEY}").get(url, params: params).parse
+    HTTP.auth("Bearer #{ENV['yelp_api_key']}").get(url, params: params).parse
   end
 
   def self.yelp_businesses(id)
     url = "#{API_HOST}#{BUSINESS_PATH}#{id}"
-    HTTP.auth("Bearer #{API_KEY}").get(url).parse
+    HTTP.auth("Bearer #{ENV['yelp_api_key']}").get(url).parse
   end
 
   # Used to set taggable symbol in tag
