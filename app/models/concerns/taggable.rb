@@ -26,8 +26,7 @@ module Taggable
   end
 
   def handle
-    db_value = super
-    return db_value if db_value.present?
+    return super if respond_to? 'super'
     handlefy(tagging_raw_handle)
   end
 

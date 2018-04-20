@@ -113,7 +113,7 @@ module Parseable
 
   def create_entity_tag(tag)
     yelp_entity = Entity.yelp_businesses(tag[:handle])
-    return if yelp_entity['id'].nil?
+    return if yelp_entity['alias'].nil?
     new_entity = Entity.create_from_yelp(yelp_entity)
     return if new_entity.invalid?
     new_entity.create_tag

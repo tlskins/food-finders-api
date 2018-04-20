@@ -58,22 +58,40 @@ module Hierarchical
     HierarchyTree.find_by(class_name: self.class.name)
   end
 
+  def roots
+    self.class.roots.entries
+  end
+
   def local_taggable_attributes
     { description: description,
       synonyms: synonyms,
       path: path,
       depth: depth,
       parent: parent_handle,
+      parent_generation: parent_generation,
       children: children_handles }
+  end
+
+  protected
+
+  def children_handles
+    children.map(&:to_s)
   end
 
   private
 
-  def parent_handle
-    parent && parent.to_s
+  def parent_generation
+    return unless parent.present?
+    return root_handles if parent.depth == 1
+    parent.parent.children_handles
   end
 
-  def children_handles
-    children.map(&:to_s)
+  def root_handles
+    return unless roots.entries.present?
+    roots.entries.map(&:to_s)
+  end
+
+  def parent_handle
+    parent && parent.to_s
   end
 end
