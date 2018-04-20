@@ -45,15 +45,19 @@ module FoodFindersApi
           'localhost:8080',
           'http://foodbuddies.heregorun.com:2000',
           'http://foodbuddies.heregorun.com:8080',
-          'http://foodbuddies.heregorun.com:443'
+          'http://foodbuddies.heregorun.com:443',
+          'https://foodbuddies.heregorun.com:2000',
+          'https://foodbuddies.heregorun.com:8080',
+          'https://foodbuddies.heregorun.com:443'
         )
 
-        resource '*',
+        resource(
+          '*',
           headers: :any,
-          methods: %i(get post put patch delete options head),
+          methods: %i[get post put patch delete options head],
           credentials: true
+        )
       end
     end
-
   end
 end
