@@ -1,5 +1,5 @@
 # Social Entry controller
-class SocialEntriesController < ApplicationController
+class Api::SocialEntriesController < ApplicationController
   before_action :set_social_entry, only: %i[show update destroy]
 
   # GET /social_entries

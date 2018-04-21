@@ -1,4 +1,4 @@
-class FoodRatingTypesController < ApplicationController
+class Api::FoodRatingTypesController < ApplicationController
   before_action :set_food_rating_type, only: [:show]
 
   # GET /food_rating_types

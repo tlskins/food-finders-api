@@ -1,5 +1,5 @@
 # Hierarchies controller
-class HierarchyTreesController < ApplicationController
+class Api::HierarchyTreesController < ApplicationController
   # GET /hierarchies
   def index
     @hierarchy_trees = HierarchyTree.all

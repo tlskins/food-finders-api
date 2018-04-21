@@ -1,5 +1,5 @@
 # Entities controller
-class EntitiesController < ApplicationController
+class Api::EntitiesController < ApplicationController
   before_action :set_entity, only: %i[show update destroy]
 
   # GET /entities

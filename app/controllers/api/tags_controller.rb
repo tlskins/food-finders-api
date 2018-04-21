@@ -1,5 +1,5 @@
 # Tag controller
-class TagsController < ApplicationController
+class Api::TagsController < ApplicationController
   before_action :set_tag, only: %i[show update destroy]
 
   # GET /all_roots
