@@ -5,7 +5,7 @@ class DeviseMailer < Devise::Mailer
 
   class << self
     def default_url_options
-      { host: 'localhost:3000' }
+      { host: ENV['host'] }
     end
   end
 end
