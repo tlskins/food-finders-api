@@ -24,7 +24,7 @@ module Hierarchical
 
     validates :description, :path, :depth, presence: true
 
-    after_save :calculate_ancestry
+    before_validation :calculate_ancestry
 
     index({ depth: 1 }, background: true)
 
