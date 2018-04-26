@@ -77,6 +77,7 @@ class User
   )
 
   # TODO : name validitions on special chars, spaces
+  validates :name, uniqueness: true
   validates :first_name, presence: true
   validates :last_name, presence: true
 
