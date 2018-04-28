@@ -5,6 +5,10 @@ class Api::ActionablesController < ApplicationController
   def index
     @actionables = Action.all
 
+    if params[:actionable_id].present?
+      @actionables = @actionables.find_by_actionable_id(params[:actionable_id])
+    end
+
     @actionables = @actionables.limit(20).order_by(conducted_at: :desc)
 
     render json: @actionables

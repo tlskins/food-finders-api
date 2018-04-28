@@ -42,6 +42,10 @@ class Action
 
   after_create :write_actionable_data, :write_to_actor_feed, :fan_out_action_job
 
+  scope :find_by_actionable_id, lambda { |actionable_id|
+    where(actionable_id: BSON::ObjectId(actionable_id))
+  }
+
   def actionable_type=(params)
     super(params)
     write_actionable_data
