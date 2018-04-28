@@ -57,14 +57,12 @@ class Entity
 
   # Used to set a unique public tag identifier
   def tagging_raw_handle
-    # If a yelp business is set use its id as the tagging handle
-    return yelp_business[:alias] || yelp_business[:id] if yelp_business.present?
     name
   end
 
-  def self.create_from_yelp(yelp_business_hash)
-    entity = Entity.new(yelp_business: yelp_business_hash)
-    entity.update_yelp_business_data
+  def self.create_from_yelp(yelp_json)
+    entity_params = Entity.yelp_business_hash(yelp_json)
+    entity = Entity.new(entity_params)
     return entity if entity.invalid?
     entity.save
     entity
@@ -81,9 +79,13 @@ class Entity
     { yelp_business: yelp_business }
   end
 
-  def update_yelp_business_data
-    return if yelp_business.nil?
-    self.name = yelp_business[:name]
-    self.yelp_business_id = yelp_business[:alias]
+  # protected
+
+  def self.yelp_business_hash(yelp_json)
+    return {} if yelp_json.nil?
+
+    { name: yelp_json['name'],
+      handle: yelp_json['alias'],
+      yelp_business_id: yelp_json['id'] }
   end
 end

@@ -36,19 +36,43 @@ module Parseable
     end
   end
 
+  # def create_tags
+  #   return if creatable_tags.empty?
+  #   create_entity_tags(creatable_tags)
+  #   create_food_tags(creatable_tags)
+  # end
+
   def create_tags
-    return if creatable_tags.empty?
-    create_tags_type(creatable_entity_tags(creatable_tags)) do |tag|
-      create_entity_tag(tag)
+    Rails.logger.debug 'begin create_tags, creatable_tags =' + creatable_tags.inspect
+    to_delete_tags = []
+    creatable_tags.each do |tag|
+      Rails.logger.debug 'tag =' + tag.inspect
+      type = tag[:taggable_type]
+      if Tag.find_by(taggable_type: type, handle: tag[:handle])
+        Rails.logger.debug 'tag found'
+        to_delete_tags.push(tag)
+      elsif type == 'Food'
+        Rails.logger.debug 'food tag found'
+        create_food_tag(tag)
+        to_delete_tags.push(tag)
+      elsif type == 'Entity'
+        Rails.logger.debug 'entity tag found'
+        create_entity_tag(tag)
+        to_delete_tags.push(tag)
+      end
     end
-    create_tags_type(creatable_food_tags(creatable_tags)) do |tag|
-      create_food_tag(tag)
-    end
+    delete_creatable_tags(to_delete_tags)
   end
 
-  def delete_creatable_tag_at(index)
-    creatable_tags.delete_at(index)
+  def delete_creatable_tags(tags)
+    tags.each { |t| delete_creatable_tag(t) }
+  end
+
+  def delete_creatable_tag(tag)
+    Rails.logger.debug 'begin delete_creatable_tag, tag=' + tag.inspect
+    creatable_tags.delete(tag)
     set(creatable_tags: creatable_tags)
+    Rails.logger.debug 'creatable_tags after delete=' + creatable_tags.inspect
   end
 
   def validate_creatable_tags
@@ -86,6 +110,20 @@ module Parseable
   def valid_tagged_words(text)
     tagged_words(text).map do |word_hash|
       word_hash[:tag] = Tag.find_by_tag(word_hash[:text])
+      if word_hash[:tag]
+        word_hash
+      elsif word_hash[:text][0] == '@'
+        # below logic belongs in creatable tags model
+        handle = word_hash[:text][1..-1]
+        unless creatable_tags.find { |t| t[:handle] == handle }
+          creatable_tags.push(
+            taggable_type: 'Entity',
+            symbol: '@',
+            handle: handle
+          )
+          # set(creatable_tags: creatable_tags)
+        end
+      end
       word_hash[:tag] && word_hash
     end.select(&:present?)
   end
@@ -103,41 +141,56 @@ module Parseable
     end
   end
 
-  def creatable_entity_tags(creatable_tags)
-    creatable_tags.select { |t| t[:taggable_type] == 'Entity' }
-  end
-
-  def creatable_food_tags(creatable_tags)
-    creatable_tags.select { |t| t[:taggable_type] == 'Food' }
-  end
-
   def create_entity_tag(tag)
+    Rails.logger.debug 'begin create_entity_tag, tag=' + tag.inspect
     yelp_entity = Entity.yelp_businesses(tag[:handle])
+    Rails.logger.debug 'create_entity_tag, yelp_entity=' + yelp_entity.inspect
     return if yelp_entity['alias'].nil?
     new_entity = Entity.create_from_yelp(yelp_entity)
+    Rails.logger.debug 'create_entity_tag, new_entity=' + new_entity.inspect
     return if new_entity.invalid?
     new_entity.create_tag
+    Rails.logger.debug 'post create entity tag'
   end
 
   def create_food_tag(tag)
+    Rails.logger.debug 'begin create_food_tag, tag=' + tag.inspect
     new_food = Food.new(tag[:taggable_object])
+    Rails.logger.debug 'begin create_food_tag, new_food=' + new_food.inspect
     return if new_food.invalid?
     new_food.create_tag
+    Rails.logger.debug 'post create food tag'
   end
 
-  def entity_tag_exists(entity_handle)
-    Tag.find_by(taggable_type: 'Entity', handle: entity_handle)
-  end
+  # def creatable_entity_tags(creatable_tags)
+  #   creatable_tags.select { |t| t[:taggable_type] == 'Entity' }
+  # end
+  #
+  # def creatable_food_tags(creatable_tags)
+  #   creatable_tags.select { |t| t[:taggable_type] == 'Food' }
+  # end
 
-  def food_tag_exists(food_handle)
-    Tag.find_by(taggable_type: 'Food', handle: food_handle)
-  end
+  # def entity_tag_exists(entity_handle)
+  #   Tag.find_by(taggable_type: 'Entity', handle: entity_handle)
+  # end
+  #
+  # def food_tag_exists(food_handle)
+  #   Tag.find_by(taggable_type: 'Food', handle: food_handle)
+  # end
 
-  def create_tags_type(creatable_tags)
-    creatable_tags.each_with_index do |tag, index|
-      if entity_tag_exists(tag[:handle]) || yield(tag)
-        delete_creatable_tag_at(index)
-      end
-    end
-  end
+  # def create_entity_tags(creatable_tags)
+  #   creatable_entity_tags(creatable_tags).each do |tag|
+  #     if entity_tag_exists(tag[:handle]) || create_entity_tag(tag)
+  #       delete_creatable_tag(tag)
+  #     end
+  #   end
+  # end
+  #
+  # def create_food_tags(creatable_tags)
+  #   creatable_food_tags(creatable_tags).each do |tag|
+  #     if food_tag_exists(tag[:handle]) || create_food_tag(tag)
+  #       delete_creatable_tag(tag)
+  #     end
+  #   end
+  # end
 end

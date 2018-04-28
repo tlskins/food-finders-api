@@ -11,6 +11,7 @@ class EmbeddedSocialEntry
   embedded_in :embeddable_social_entry, polymorphic: true
 
   before_validation :validate_creatable_tags
+  before_validation :parse_text
 
   def submitted
     update_attributes(
