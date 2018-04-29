@@ -36,7 +36,18 @@ class SocialEntryGenerator
   # Generator functions
 
   def create_social_entry(params, create_tags = false)
-    @social_entry = SocialEntry.new(params)
+    if params[:parent_social_entry_id]
+      @parent_social_entry = SocialEntry.find(
+        BSON::ObjectId(params[:parent_social_entry_id])
+      )
+      @social_entry = @parent_social_entry.build(
+        text: params[:text],
+        creatable_tags: params[:creatable_tags],
+        user: params[:user]
+      )
+    else
+      @social_entry = SocialEntry.new(params)
+    end
     return @social_entry unless @social_entry.valid?
     @social_entry.save
     @social_entry.parse_text

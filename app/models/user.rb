@@ -125,11 +125,13 @@ class User
     name
   end
 
-  def publish_draft_social_entry(text, creatable_tags)
+  # def publish_draft_social_entry(text, creatable_tags, parent_social_entry_id)
+  def publish_draft_social_entry(params)
     generator = SocialEntryGenerator.new
     social_entry = generator.create_social_entry(
-      { text: text,
-        creatable_tags: creatable_tags,
+      { text: params[:text],
+        creatable_tags: params.to_h[:creatable_tags],
+        parent_social_entry_id: params[:parent_social_entry_id],
         user: self }, true
     )
     draft_social_entry.submitted
