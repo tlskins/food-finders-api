@@ -35,28 +35,43 @@ class SocialEntryGenerator
 
   # Generator functions
 
-  def create_social_entry(params, create_tags = false)
-    if params[:parent_social_entry_id]
-      @parent_social_entry = SocialEntry.find(
-        BSON::ObjectId(params[:parent_social_entry_id])
-      )
-      @social_entry = @parent_social_entry.build(
-        text: params[:text],
-        creatable_tags: params[:creatable_tags],
-        user: params[:user]
-      )
+  def create_social_entry(params, parent_social_entry_id, create_tags = false)
+    if parent_social_entry_id
+      create_reply_social_entry(params, parent_social_entry_id, create_tags)
     else
-      @social_entry = SocialEntry.new(params)
+      create_root_social_entry(params, create_tags)
     end
+  end
+
+  def create_root_social_entry(params, create_tags = false)
+    @social_entry = SocialEntry.create(params)
     return @social_entry unless @social_entry.valid?
-    @social_entry.save
     @social_entry.parse_text
     @social_entry.create_tags if create_tags
-    @social_entry.save
     return @social_entry unless @social_entry.valid?
-    @social_entry.parse_text
     @social_entry.generate_food_rating if @social_entry.tags.present?
     @social_entry.create_action
     @social_entry
+  end
+
+  def create_reply_social_entry(params, parent_social_entry_id, create_tags = false)
+    @parent = SocialEntry.find(BSON::ObjectId(parent_social_entry_id))
+    # TODO : move root params to social entry model
+    root_params = params.merge(
+      parent_social_entry_id: BSON::ObjectId(parent_social_entry_id),
+      set_scope: 'subscribers'
+    )
+    @root_entry = SocialEntry.create(root_params)
+    return @root_entry unless @root_entry.valid?
+    @parent.update_action
+    @embed_entry = @parent.embedded_reply_social_entries.create(params)
+    if create_tags
+      @root_entry.create_tags
+      @embed_entry.create_tags
+    end
+    @root_entry.parse_text
+    @embed_entry.parse_text
+    @root_entry.create_action
+    @root_entry
   end
 end

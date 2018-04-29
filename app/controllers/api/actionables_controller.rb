@@ -3,15 +3,27 @@ class Api::ActionablesController < ApplicationController
 
   # GET /actionables
   def index
-    @actionables = Action.all
-
-    if params[:actionable_id].present?
-      @actionables = @actionables.find_by_actionable_id(params[:actionable_id])
-    end
+    @actionables = Action.where(scope: 'public', parent_social_entry_id: nil)
 
     @actionables = @actionables.limit(20).order_by(conducted_at: :desc)
 
     render json: @actionables
+  end
+
+  # GET /find
+  def find
+    if params[:actionable_id].present?
+      @actionable = Action.find_by_actionable_id(params[:actionable_id])
+    end
+
+    if @actionable && @actionable.valid?
+      render json: @actionable
+    else
+      render(
+        json: { message: 'Action not found.' },
+        status: :unprocessable_entity
+      )
+    end
   end
 
   # GET /actionables/1

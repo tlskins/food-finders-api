@@ -2,17 +2,19 @@
 class SocialEntry
   include Mongoid::Document
   include Mongoid::Timestamps
+  include Mongoid::Attributes::Dynamic
   include Actionable
   include Parseable
 
   field :text, type: String
+  field :parent_social_entry_id, type: BSON::ObjectId
+  field :set_scope, type: String
+  field :embedded_reply_social_entries_count, type: Integer
 
   belongs_to :user
   has_one :food_rating
 
-  # TODO : If use recursive embeds prevent ratings being associated
-  # to create ratings
-  recursively_embeds_many
+  embeds_many :embedded_reply_social_entries
 
   validates :text, presence: true, length: { minimum: 3, maximum: 160 }
   validates :user, presence: true
@@ -24,22 +26,26 @@ class SocialEntry
   end
 
   def scope
-    'followers'
+    set_scope || 'public'
   end
 
   def metadata
     author_name = user.handle ? '@' + user.handle : user.full_name
     tag_attrs = tags.map(&:attributes)
-    food_rating_attributes = food_rating.embeddable_attributes if food_rating.present?
+    food_rating_attributes = food_rating && food_rating.embeddable_attributes
     { author_type: user.class.name,
       author_id: user.id,
       author_name: author_name,
       data_type: 'text',
       data: text,
+      replies_count: embedded_reply_social_entries_count,
       created_at: created_at,
       tags: tag_attrs,
       food_rating: food_rating_attributes }
   end
+
+  ### Rating Methods ###
+  # TODO : Move to a concern
 
   attr_accessor(
     :rating_generator,
@@ -49,8 +55,6 @@ class SocialEntry
     :rating_type, # rating type hashtag
     :rating_metrics, # rating metrics hashtag
   )
-
-  # TODO : Move to a concern
 
   @singular_rating_attributes = %w[rateable ratee rating_type]
   @multi_rating_attributes = %w[rating_metrics]

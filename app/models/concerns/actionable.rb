@@ -7,6 +7,11 @@ module Actionable
     has_one :action, as: :actionable
   end
 
+  def update_action
+    return if action.nil?
+    action.write_actionable_data
+  end
+
   def actor
     raise 'Actionable actor not defined'
   end

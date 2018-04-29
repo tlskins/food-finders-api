@@ -48,6 +48,12 @@ class Api::SocialEntriesController < ApplicationController
 
   # Only allow a trusted parameter "white list" through.
   def social_entry_params
-    params.require(:social_entry).permit(:text, :user_id, :vote, :tags, creatable_tags: [])
+    params.require(:social_entry).permit(
+      :text,
+      :user_id,
+      :vote,
+      :tags,
+      creatable_tags: []
+    )
   end
 end

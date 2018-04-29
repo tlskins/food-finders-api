@@ -6,9 +6,10 @@ class Action
 
   # Written to relevancy in the newsfeed item
   field :conducted_at, type: DateTime
-  field :fan_out_status, type: String # Pending, In Progress, Done, Error
+  # Pending, In Progress, Done, Error
+  field :fan_out_status, type: String, default: 'pending'
   field :metadata, type: Hash # Data synopsis to write to newfeed item
-  field :scope, type: String # Followers, All
+  field :scope, type: String # followers, subscribers, public
 
   # Actor (or author) of the data in action
   belongs_to :actor, polymorphic: true
@@ -35,21 +36,22 @@ class Action
   validates(
     :scope,
     inclusion: {
-      in: %w[followers all],
+      in: %w[followers public subscribers],
       message: 'Not a valid scope'
     }
   )
 
-  after_create :write_actionable_data, :write_to_actor_feed, :fan_out_action_job
+  before_validation :write_actionable_data
+  after_create :write_to_actor_feed, :fan_out_action_job
 
-  scope :find_by_actionable_id, lambda { |actionable_id|
-    where(actionable_id: BSON::ObjectId(actionable_id))
-  }
-
-  def actionable_type=(params)
-    super(params)
-    write_actionable_data
+  def self.find_by_actionable_id(actionable_id)
+    find_by(actionable_id: BSON::ObjectId(actionable_id))
   end
+
+  # def actionable_type=(params)
+  #   super(params)
+  #   write_actionable_data
+  # end
 
   # TODO : Fan out needs to work with updates and destroys not just creates
   def fan_out
@@ -74,14 +76,11 @@ class Action
     newsfeed_items.create(user_id: actor.id, relevancy: conducted_at)
   end
 
-  protected
-
   def write_actionable_data
     set(
       actor_id: actionable.actor.id,
       actor_type: actionable.actor.class.name,
       conducted_at: Time.now,
-      fan_out_status: 'pending',
       scope: actionable.scope,
       metadata: actionable.metadata
     )

@@ -67,9 +67,6 @@ class Api::UsersController < ApplicationController
   # POST /users/1/publish_draft_social_entry
   def publish_draft_social_entry
     @social_entry = @user.publish_draft_social_entry(draft_social_entry_params)
-    #   draft_social_entry_params[:text],
-    #   draft_social_entry_params.to_h[:creatable_tags]
-    # )
     if @social_entry.valid?
       @user.reload
       render json: @user

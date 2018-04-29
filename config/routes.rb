@@ -6,7 +6,9 @@ Rails.application.routes.draw do
       confirmations: 'users/confirmations',
       passwords: 'users/passwords'
     }
-    resources :actionables, only: %i[show index]
+    resources :actionables, only: %i[show index] do
+      get 'find', on: :collection
+    end
     resources :users, except: :create do
       get 'newsfeed', on: :member
       get 'match_relationships', on: :member

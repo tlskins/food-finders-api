@@ -131,15 +131,18 @@ class User
     social_entry = generator.create_social_entry(
       { text: params[:text],
         creatable_tags: params.to_h[:creatable_tags],
-        parent_social_entry_id: params[:parent_social_entry_id],
-        user: self }, true
+        user: self }, params[:parent_social_entry_id], true
     )
     draft_social_entry.submitted
     social_entry
   end
 
-  def relevant_newsfeed_ids
-    newsfeed_items.limit(25).order_by(relevancy: :desc).map(&:action_id)
+  def newsfeed(created_after = nil)
+    actions = Action.where(id: { :$in => relevant_newsfeed_ids })
+    if created_after.present?
+      actions = actions.where(:created_at.gt => created_after)
+    end
+    actions.order_by(conducted_at: 'desc')
   end
 
   def match_relationships(user_ids)
@@ -153,14 +156,6 @@ class User
     end
   end
 
-  def newsfeed(created_after = nil)
-    actions = Action.where(id: { :$in => relevant_newsfeed_ids })
-    if created_after.present?
-      actions = actions.where(:created_at.gt => created_after)
-    end
-    actions.order_by(conducted_at: 'desc')
-  end
-
   def embeddable_attributes
     { _id: _id,
       name: name,
@@ -169,5 +164,11 @@ class User
       created_at: created_at,
       followers_count: followers_count,
       following_count: following_count }
+  end
+
+  private
+
+  def relevant_newsfeed_ids
+    newsfeed_items.limit(25).order_by(relevancy: :desc).map(&:action_id)
   end
 end
