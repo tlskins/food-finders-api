@@ -24,6 +24,10 @@ class SocialEntry
     SocialEntry.find_by(id: parent_social_entry_id)
   end
 
+  def replies
+    embedded_reply_social_entries.map(&:attributes)
+  end
+
   ### Actionable Methods ###
 
   def actor
@@ -44,6 +48,7 @@ class SocialEntry
              author_name: author_name,
              data_type: 'text',
              data: text,
+             replies: replies,
              replies_count: embedded_reply_social_entries_count,
              created_at: created_at,
              tags: tag_attrs,
