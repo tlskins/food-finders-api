@@ -23,4 +23,8 @@ module Actionable
   def metadata
     raise 'Actionable metadata not defined'
   end
+
+  def subscriber_ids
+    raise 'Actionable subscriber ids not defined'
+  end
 end

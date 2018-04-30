@@ -3,7 +3,7 @@ class Api::ActionablesController < ApplicationController
 
   # GET /actionables
   def index
-    @actionables = Action.where(scope: 'public', parent_social_entry_id: nil)
+    @actionables = Action.public_scope.root_social_entries
 
     @actionables = @actionables.limit(20).order_by(conducted_at: :desc)
 

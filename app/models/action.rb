@@ -9,7 +9,7 @@ class Action
   # Pending, In Progress, Done, Error
   field :fan_out_status, type: String, default: 'pending'
   field :metadata, type: Hash # Data synopsis to write to newfeed item
-  field :scope, type: String # followers, subscribers, public
+  field :scope, type: String # followers, subscribers
 
   # Actor (or author) of the data in action
   belongs_to :actor, polymorphic: true
@@ -42,23 +42,26 @@ class Action
   )
 
   before_validation :write_actionable_data
-  after_create :write_to_actor_feed, :fan_out_action_job
+  after_create :fan_out_action_job
 
   def self.find_by_actionable_id(actionable_id)
     find_by(actionable_id: BSON::ObjectId(actionable_id))
   end
 
-  # def actionable_type=(params)
-  #   super(params)
-  #   write_actionable_data
-  # end
+  scope :root_social_entries, lambda {
+    where(actionable_type: 'SocialEntry',
+          'metadata.parent_social_entry' => nil)
+  }
 
-  # TODO : Fan out needs to work with updates and destroys not just creates
+  scope :public_scope, -> { where(scope: 'followers') }
+
   def fan_out
-    update_attributes(fan_out_status: 'running')
-    follower_ids = actor.follower_tracker.target_ids
-    follower_ids.each do |follower_id|
-      newsfeed_items.create(user_id: follower_id, relevancy: conducted_at)
+    set(fan_out_status: 'running')
+    if scope == 'followers'
+      write_to_followers_feed
+      write_to_actor_feed
+    elsif scope == 'subscribers'
+      write_to_subscribers_feed
     end
     set(fan_out_status: 'done')
   rescue StandardError => error
@@ -68,6 +71,19 @@ class Action
 
   def fan_out_action_job
     FanOutJob.perform_now self if fan_out_status == 'pending'
+  end
+
+  def write_to_followers_feed
+    follower_ids = actor.follower_tracker.target_ids
+    follower_ids.each do |follower_id|
+      newsfeed_items.create(user_id: follower_id, relevancy: conducted_at)
+    end
+  end
+
+  def write_to_subscribers_feed
+    actionable.subscriber_ids.each do |subscriber_id|
+      newsfeed_items.create(user_id: subscriber_id, relevancy: conducted_at)
+    end
   end
 
   def write_to_actor_feed

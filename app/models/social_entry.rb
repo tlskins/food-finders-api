@@ -19,6 +19,11 @@ class SocialEntry
   validates :text, presence: true, length: { minimum: 3, maximum: 160 }
   validates :user, presence: true
 
+  def parent_social_entry
+    return unless parent_social_entry_id.present?
+    SocialEntry.find_by(id: parent_social_entry_id)
+  end
+
   ### Actionable Methods ###
 
   def actor
@@ -26,22 +31,37 @@ class SocialEntry
   end
 
   def scope
-    set_scope || 'public'
+    set_scope || 'followers'
   end
 
-  def metadata
+  def metadata(include_parent = true)
     author_name = user.handle ? '@' + user.handle : user.full_name
     tag_attrs = tags.map(&:attributes)
     food_rating_attributes = food_rating && food_rating.embeddable_attributes
-    { author_type: user.class.name,
-      author_id: user.id,
-      author_name: author_name,
-      data_type: 'text',
-      data: text,
-      replies_count: embedded_reply_social_entries_count,
-      created_at: created_at,
-      tags: tag_attrs,
-      food_rating: food_rating_attributes }
+    hash = { id: id,
+             author_type: user.class.name,
+             author_id: user.id,
+             author_name: author_name,
+             data_type: 'text',
+             data: text,
+             replies_count: embedded_reply_social_entries_count,
+             created_at: created_at,
+             tags: tag_attrs,
+             food_rating: food_rating_attributes }
+    if include_parent && parent_social_entry.present?
+      return hash.merge(
+        parent_social_entry: parent_social_entry.metadata(false)
+      )
+    end
+    hash
+  end
+
+  def subscriber_ids
+    if parent_social_entry.present?
+      [parent_social_entry.user_id]
+    else
+      []
+    end
   end
 
   ### Rating Methods ###
