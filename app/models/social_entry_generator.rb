@@ -47,7 +47,10 @@ class SocialEntryGenerator
     @social_entry = SocialEntry.create(params)
     return @social_entry unless @social_entry.valid?
     @social_entry.parse_text
-    @social_entry.create_tags if create_tags
+    if create_tags
+      @social_entry.create_tags
+      @social_entry.parse_text
+    end
     return @social_entry unless @social_entry.valid?
     @social_entry.generate_food_rating if @social_entry.tags.present?
     @social_entry.create_action
@@ -63,15 +66,18 @@ class SocialEntryGenerator
     )
     @root_entry = SocialEntry.create(root_params)
     return @root_entry unless @root_entry.valid?
+    # TODO : move embed params to social entry model
     embed_params = params.merge(social_entry_id: @root_entry.id)
     @embed_entry = @parent.embedded_reply_social_entries.create(embed_params)
-    @parent.update_action
+    @root_entry.parse_text
+    @embed_entry.parse_text
     if create_tags
       @root_entry.create_tags
       @embed_entry.create_tags
+      @root_entry.parse_text
+      @embed_entry.parse_text
     end
-    @root_entry.parse_text
-    @embed_entry.parse_text
+    @parent.update_action
     @root_entry.create_action
     @root_entry
   end
