@@ -89,6 +89,10 @@ class User
     [first_name, last_name].join(' ')
   end
 
+  def full_handle
+    '@' + handle
+  end
+
   def follow(target)
     following_tracker.add_target(target)
     target.follower_tracker.add_target(self)

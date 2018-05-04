@@ -63,8 +63,9 @@ class SocialEntryGenerator
     )
     @root_entry = SocialEntry.create(root_params)
     return @root_entry unless @root_entry.valid?
+    embed_params = params.merge(social_entry_id: @root_entry.id)
+    @embed_entry = @parent.embedded_reply_social_entries.create(embed_params)
     @parent.update_action
-    @embed_entry = @parent.embedded_reply_social_entries.create(params)
     if create_tags
       @root_entry.create_tags
       @embed_entry.create_tags

@@ -25,7 +25,7 @@ class SocialEntry
   end
 
   def replies
-    embedded_reply_social_entries.map(&:attributes)
+    embedded_reply_social_entries.map(&:metadata)
   end
 
   ### Actionable Methods ###
