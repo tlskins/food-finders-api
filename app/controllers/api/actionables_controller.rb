@@ -17,9 +17,12 @@ class Api::ActionablesController < ApplicationController
     elsif params[:social_entry_id].present?
       social_entry = SocialEntry.find_by(id: params[:social_entry_id])
       @actionable = social_entry.action if social_entry.present?
+    elsif params[:social_entry_ids].present?
+      @actionable = SocialEntry.find_by_ids(params[:social_entry_ids])
+      @actionable = @actionable.entries.map(&:action)
     end
 
-    if @actionable && @actionable.valid?
+    if @actionable
       render json: @actionable
     else
       render(

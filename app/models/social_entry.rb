@@ -19,6 +19,11 @@ class SocialEntry
   validates :text, presence: true, length: { minimum: 3, maximum: 160 }
   validates :user, presence: true
 
+  scope :find_by_ids, lambda { |ids|
+    ids = ids.split(',') if ids.class.name == 'String'
+    where(:id.in => ids)
+  }
+
   def embedded_reply_social_entries_count
     embedded_reply_social_entries.count
   end
