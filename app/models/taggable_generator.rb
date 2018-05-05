@@ -4,13 +4,12 @@ class TaggableGenerator
 
   attr_reader :taggable, :parent_taggable, :taggable_class, :hierarchy_tree
 
-  validates :taggable_class, presence: true
   validate :valid_taggable_class
 
   # Validation functions
 
   def valid_taggable_class
-    return if @taggable_class.included_modules.include?(Taggable)
+    return if @taggable_class || @taggable_class.included_modules.include?(Taggable)
     errors.add('message', 'Target must include Taggable module.')
   end
 
