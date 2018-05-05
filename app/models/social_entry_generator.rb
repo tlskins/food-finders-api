@@ -77,7 +77,11 @@ class SocialEntryGenerator
       @root_entry.parse_text
       @embed_entry.parse_text
     end
-    @parent.update_action
+    @parent.update_embedded_reply(@root_entry)
+    # update the embedded reply synonym of the parent
+    if @parent.parent_social_entry
+      @parent.parent_social_entry.update_embedded_reply(@parent)
+    end
     @root_entry.create_action
     @root_entry
   end

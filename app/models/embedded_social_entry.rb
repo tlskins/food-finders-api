@@ -18,7 +18,8 @@ class EmbeddedSocialEntry
       text: '',
       tags: [],
       creatable_tags: [],
-      last_submit: Time.now
+      last_submit: Time.now,
+      parent_social_entry_id: nil
     )
   end
 

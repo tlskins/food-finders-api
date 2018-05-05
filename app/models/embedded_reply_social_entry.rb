@@ -7,10 +7,9 @@ class EmbeddedReplySocialEntry
   field :text, type: String
   field :user, type: Hash
   field :social_entry_id, type: BSON::ObjectId
+  field :replies_count, type: Integer, default: 0
 
   embedded_in :social_entry, counter_cache: true
-
-  validates :text, presence: true, length: { minimum: 3, maximum: 160 }
 
   def initialize(args)
     user = args[:user]
@@ -20,10 +19,23 @@ class EmbeddedReplySocialEntry
     super
   end
 
+  def social_entry
+    return unless social_entry_id.present?
+    SocialEntry.find_by(id: social_entry_id)
+  end
+
   def author_name
     return unless user.present?
     author = User.find_by(id: user[:_id])
     author.full_handle
+  end
+
+  def update_social_entry
+    root = social_entry
+    set(
+      text: root.text,
+      replies_count: root.embedded_reply_social_entries_count
+    )
   end
 
   def metadata
@@ -34,6 +46,7 @@ class EmbeddedReplySocialEntry
       data_type: 'text',
       data: text,
       created_at: created_at,
-      tags: tags.map(&:attributes) }
+      tags: tags.map(&:attributes),
+      replies_count: replies_count }
   end
 end

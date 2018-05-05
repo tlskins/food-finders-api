@@ -9,7 +9,7 @@ class SocialEntry
   field :text, type: String
   field :parent_social_entry_id, type: BSON::ObjectId
   field :set_scope, type: String
-  field :embedded_reply_social_entries_count, type: Integer
+  # field :embedded_reply_social_entries_count, type: Integer
 
   belongs_to :user
   has_one :food_rating
@@ -19,6 +19,10 @@ class SocialEntry
   validates :text, presence: true, length: { minimum: 3, maximum: 160 }
   validates :user, presence: true
 
+  def embedded_reply_social_entries_count
+    embedded_reply_social_entries.count
+  end
+
   def parent_social_entry
     return unless parent_social_entry_id.present?
     SocialEntry.find_by(id: parent_social_entry_id)
@@ -26,6 +30,27 @@ class SocialEntry
 
   def replies
     embedded_reply_social_entries.map(&:metadata)
+  end
+
+  def food_rating_attributes
+    food_rating && food_rating.embeddable_attributes
+  end
+
+  def author_name
+    user.handle ? '@' + user.handle : user.full_name
+  end
+
+  def find_embedded_reply(root_social_entry)
+    index = embedded_reply_social_entries.find_index do |e|
+      e.social_entry_id == root_social_entry.id
+    end
+    embedded_reply_social_entries[index] if index.present?
+  end
+
+  def update_embedded_reply(root_social_entry)
+    embed_reply = find_embedded_reply(root_social_entry)
+    embed_reply.update_social_entry if embed_reply.present?
+    update_action
   end
 
   ### Actionable Methods ###
@@ -39,9 +64,7 @@ class SocialEntry
   end
 
   def metadata(include_parent = true)
-    author_name = user.handle ? '@' + user.handle : user.full_name
     tag_attrs = tags.map(&:attributes)
-    food_rating_attributes = food_rating && food_rating.embeddable_attributes
     hash = { id: id,
              author_type: user.class.name,
              author_id: user.id,
