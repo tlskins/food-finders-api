@@ -14,6 +14,9 @@ class Api::ActionablesController < ApplicationController
   def find
     if params[:actionable_id].present?
       @actionable = Action.find_by_actionable_id(params[:actionable_id])
+    elsif params[:social_entry_id].present?
+      social_entry = SocialEntry.find_by(id: params[:social_entry_id])
+      @actionable = social_entry.action if social_entry.present?
     end
 
     if @actionable && @actionable.valid?
