@@ -142,7 +142,7 @@ class User
   end
 
   def newsfeed(created_after = nil)
-    actions = Action.where(id: { :$in => relevant_newsfeed_ids })
+    actions = Action.root_social_entries.with_ids(relevant_newsfeed_ids)
     if created_after.present?
       actions = actions.where(:created_at.gt => created_after)
     end

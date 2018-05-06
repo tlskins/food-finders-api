@@ -55,6 +55,10 @@ class Action
 
   scope :public_scope, -> { where(scope: 'followers') }
 
+  scope :with_ids, lambda { |ids|
+    where(id: { :$in => ids })
+  }
+
   def fan_out
     set(fan_out_status: 'running')
     if scope == 'followers'
