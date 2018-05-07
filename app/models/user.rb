@@ -96,6 +96,7 @@ class User
   def follow(target)
     following_tracker.add_target(target)
     target.follower_tracker.add_target(self)
+    target.recent_social_entries.each { |e| e.write_to_feed(self) }
   end
 
   def following?(target)
@@ -139,6 +140,10 @@ class User
     )
     draft_social_entry.submitted
     social_entry
+  end
+
+  def recent_social_entries
+    social_entries.limit(20).order_by(created_at: :desc)
   end
 
   def newsfeed(created_after = nil)

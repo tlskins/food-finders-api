@@ -77,6 +77,10 @@ class Action
     FanOutJob.perform_now self if fan_out_status == 'pending'
   end
 
+  def write_to_feed(target)
+    newsfeed_items.create!(user_id: target.id, relevancy: conducted_at)
+  end
+
   def write_to_followers_feed
     follower_ids = actor.follower_tracker.target_ids
     follower_ids.each do |follower_id|

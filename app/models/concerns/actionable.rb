@@ -12,6 +12,11 @@ module Actionable
     action.write_actionable_data
   end
 
+  def write_to_feed(target)
+    return unless action.present?
+    action.write_to_feed(target)
+  end
+
   def actor
     raise 'Actionable actor not defined'
   end
